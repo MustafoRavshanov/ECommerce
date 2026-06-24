@@ -13,7 +13,7 @@ public class CategoryFullInformationDto
     public int Id { get; set; }
     public string? NameUz { get; set; }
     public string? NameEn { get; set; }
-    public List<ProductDto>? Products { get; set; }
+    public List<ProductFullDto>? Products { get; set; }
 }
 
 public class CategoryCreateDto

@@ -9,6 +9,9 @@ public class MappingProfile:Profile
     public MappingProfile() 
     {
         CreateMap<Customer, CustomerDto>().ReverseMap();
+        CreateMap<Customer, CustomerFullInformationDto>()
+            .ForMember(dest => dest.DistrictName,
+               opt => opt.MapFrom(src => src.District.Name));
         CreateMap<CustomerCreateDto, Customer>();
         CreateMap<CustomerUpdateDto, Customer>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
@@ -25,17 +28,36 @@ public class MappingProfile:Profile
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Category, CategoryDto>().ReverseMap();
+        CreateMap<Category, CategoryFullInformationDto>()
+            .ForMember(dest => dest.Products,
+               opt => opt.MapFrom(src => src.Products));
         CreateMap<CategoryCreateDto, Category>().ReverseMap();
         CreateMap<CategoryUpdateDto, Category>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Order, OrderDto>().ReverseMap();
-        CreateMap<OrderCreateDto, Order>().ReverseMap();
+		CreateMap<Order, OrderFullInformationDto>()
+	 .ForMember(dest => dest.DistrictName,
+				opt => opt.MapFrom(src => src.District.Name))
+	 .ForMember(dest => dest.RegionName,
+				opt => opt.MapFrom(src => src.District.Region.Name))
+	 .ForMember(dest => dest.CustomerFirstName,
+				opt => opt.MapFrom(src => src.Customer.FirstName))
+	 .ForMember(dest => dest.CustomerLastName,
+				opt => opt.MapFrom(src => src.Customer.LastName))
+	 .ForMember(dest => dest.CustomerPhoneNumber,
+				opt => opt.MapFrom(src => src.Customer.PhoneNumber)) 
+	 .ForMember(dest => dest.Items,
+				opt => opt.MapFrom(src => src.OrderDetails));
+
+		CreateMap<OrderCreateDto, Order>().ReverseMap();
         CreateMap<OrderUpdateDto, Order>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-        CreateMap<Product, ProductDto>()
+        CreateMap<Product, ProductFullDto>()
             .ForMember(dest => dest.CategoryNameUz, opt => opt.MapFrom(src => src.Category.NameUz));
+        CreateMap<Product,ProductFullInformationDto>()
+             .ForMember(dest => dest.CategoryNameUz, opt => opt.MapFrom(src => src.Category.NameUz));
         CreateMap<ProductCreateDto, Product>().ReverseMap();
         CreateMap<ProductUpdateDto, Product>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
@@ -47,5 +69,26 @@ public class MappingProfile:Profile
         CreateMap<BasketCreateDto, Basket>().ReverseMap();
         CreateMap<BasketUpdateDto, Basket>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
+        CreateMap<User, UserFullDto>()
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
+            .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.Role.RolePermissions.Select(rp => rp.Permission).ToList()));
+        CreateMap<UserCreateDto, User>();
+        CreateMap<UserUpdateDto, User>()
+            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+        CreateMap<UserUpdatePasswordDto, User>();
+
+        CreateMap<Role, RoleDto>()
+            .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.RolePermissions.Select(rp => rp.Permission).ToList()));
+        CreateMap<RoleCreateDto, Role>();
+        CreateMap<RoleUpdateDto, Role>();
+
+        CreateMap<RegisterDto, User>()
+    .ForMember(dest => dest.Password, opt => opt.Ignore())  
+    .ForMember(dest => dest.RoleId, opt => opt.Ignore())    
+    .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+
     }
 }

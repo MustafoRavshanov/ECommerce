@@ -15,7 +15,7 @@ namespace ECommerce.Service.Services.Products
 {
     public class ProductService(ApplicationDbContext applicationDbContext, IMapper mapper) : IProductService
     {
-        public async Task<ResponseModel<ProductDto>> AddProductAsync(ProductCreateDto createDto)
+        public async Task<ResponseModel<ProductFullDto>> AddProductAsync(ProductCreateDto createDto)
         {
             var category = await applicationDbContext.Categories
                 .FirstOrDefaultAsync(c => c.Id == createDto.CategoryId);
@@ -27,11 +27,11 @@ namespace ECommerce.Service.Services.Products
             var result = await applicationDbContext.SaveChangesAsync();
 
             if(result < 1)
-                return ResponseModel<ProductDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+                return ResponseModel<ProductFullDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-            var productDto = mapper.Map<ProductDto>(entity);
+            var productDto = mapper.Map<ProductFullDto>(entity);
 
-            return ResponseModel<ProductDto>.Success(productDto, "Product added successfully", HttpStatusCode.Created);
+            return ResponseModel<ProductFullDto>.Success(productDto, "Product added successfully", HttpStatusCode.Created);
         }
 
         public async Task<ResponseModel<bool>> DeleteProductAsync(int productId)
@@ -50,7 +50,7 @@ namespace ECommerce.Service.Services.Products
             return ResponseModel<bool>.Success(true, "Product deleted successfully", HttpStatusCode.OK);
         }
 
-        public async Task<TableResponse<List<ProductDto>>> GetAllProductsAsync(TableOptions tableOptions)
+        public async Task<TableResponse<List<ProductFullDto>>> GetAllProductsAsync(TableOptions tableOptions)
         {
             var entities = applicationDbContext.Products.Include(p => p.Category).AsQueryable();
             var count = await entities.CountAsync();
@@ -60,43 +60,79 @@ namespace ECommerce.Service.Services.Products
                 .Take(tableOptions.Rows)
                 .ToListAsync();
 
-            var productDtos = mapper.Map<List<ProductDto>>(products);
+            var productDtos = mapper.Map<List<ProductFullDto>>(products);
            
-            return new TableResponse<List<ProductDto>> { Total = count, Items = productDtos };
+            return new TableResponse<List<ProductFullDto>> { Total = count, Items = productDtos };
         }
 
-        public async Task<ResponseModel<ProductDto>> GetProductByIdAsync(int productId)
+        public async Task<TableResponse<List<ProductFullInformationDto>>> GetAllProductFullAsync(TableOptions tableOptions)
+        {
+            var entities = applicationDbContext.Products.Include(p => p.Category).AsQueryable();
+            var count = await entities.CountAsync();
+
+            var products = await entities
+                .Skip(tableOptions.First)
+                .Take(tableOptions.Rows)
+                .ToListAsync();
+
+            var productDtos = mapper.Map<List<ProductFullInformationDto>>(products);
+
+            return new TableResponse<List<ProductFullInformationDto>> { Total = count, Items = productDtos };
+        }
+        public async Task<ResponseModel<ProductFullDto>> GetProductByIdAsync(int productId)
         {
             var entity = await applicationDbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == productId);
 
             if (entity is null)
-                return ResponseModel<ProductDto>.Fail("Product not found", HttpStatusCode.NotFound);
+                return ResponseModel<ProductFullDto>.Fail("Product not found", HttpStatusCode.NotFound);
 
-            var productDto = mapper.Map<ProductDto>(entity);
+            var productDto = mapper.Map<ProductFullDto>(entity);
 
-            return ResponseModel<ProductDto>.Success(productDto, "Product retrieved successfully", HttpStatusCode.OK);
+            return ResponseModel<ProductFullDto>.Success(productDto, "Product retrieved successfully", HttpStatusCode.OK);
         }
 
-        public async Task<ResponseModel<ProductDto>> UpdateProductAsync(ProductUpdateDto updateDto, int productId)
+        public async Task<ResponseModel<ProductFullInformationDto>> GetProductFullByIdAsync(int productId)
         {
             var entity = await applicationDbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == productId);
 
             if (entity is null)
-                return ResponseModel<ProductDto>.Fail("Product not found", HttpStatusCode.NotFound);
+                return ResponseModel<ProductFullInformationDto>.Fail("Product not found", HttpStatusCode.NotFound);
+
+            var productDto = mapper.Map<ProductFullInformationDto>(entity);
+
+            return ResponseModel<ProductFullInformationDto>.Success(productDto, "Product retrieved successfully", HttpStatusCode.OK);
+        }
+        public async Task<ResponseModel<ProductFullDto>> UpdateProductAsync(ProductUpdateDto updateDto, int productId)
+        {
+            var entity = await applicationDbContext.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (entity is null)
+                return ResponseModel<ProductFullDto>.Fail("Product not found", HttpStatusCode.NotFound);
 
             mapper.Map(updateDto, entity);
 
-            var category = await applicationDbContext.Categories.FirstOrDefaultAsync(c => c.Id == updateDto.CategoryId);
-            entity.Category = category;
+            if (updateDto.CategoryId is not null)
+            {
+                var category = await applicationDbContext.Categories
+                    .FirstOrDefaultAsync(c => c.Id == updateDto.CategoryId);
+
+                if (category is null)
+                    return ResponseModel<ProductFullDto>.Fail("Category not found", HttpStatusCode.NotFound);
+
+                entity.CategoryId = updateDto.CategoryId.Value;
+                entity.Category = category;
+            }
 
             var result = await applicationDbContext.SaveChangesAsync();
 
             if (result < 1)
-                return ResponseModel<ProductDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+                return ResponseModel<ProductFullDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-            var productDto = mapper.Map<ProductDto>(entity);
+            var productDto = mapper.Map<ProductFullDto>(entity);
 
-            return ResponseModel<ProductDto>.Success(productDto, "Product updated successfully", HttpStatusCode.OK);
+            return ResponseModel<ProductFullDto>.Success(productDto, "Product updated successfully", HttpStatusCode.OK);
         }
     }
 }

@@ -8,8 +8,6 @@ namespace ECommerce.Domain.Entities;
 public class Customer
 {
     [Column("id")]
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Column("district_id")]
@@ -35,6 +33,7 @@ public class Customer
 
 
     // Navigation property
+    public User? User { get; set; }
     public District? District { get; set; }
     public ICollection<Basket>? Baskets { get; set; }
     public ICollection<Order>? Orders { get; set; }

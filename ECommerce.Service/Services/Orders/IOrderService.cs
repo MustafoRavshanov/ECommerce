@@ -7,9 +7,10 @@ namespace ECommerce.Service.Services.Orders
     {
         Task<ResponseModel<OrderDto>> AddOrderAsync(OrderCreateDto createDto, int customerId);
         Task<TableResponse<List<OrderDto>>> GetMyOrdersAsync(TableOptions tableOptions, int customerId);
+        Task<TableResponse<List<OrderFullInformationDto>>> GetAllOrdersFullAsync(TableOptions tableOptions, int customerId);
         Task<ResponseModel<OrderDto>> GetOrderByIdAsync(int orderId, int customerId);
+        Task<ResponseModel<OrderFullInformationDto>> GetOrderFullByIdAsync(int orderId, int customerId);
         Task<ResponseModel<OrderDto>> UpdateOrderAsync(OrderUpdateDto updateDto, int orderId, int customerId);
-        
         Task<ResponseModel<bool>> DeleteOrderAsync(int orderId, int customerId);
     }
 }

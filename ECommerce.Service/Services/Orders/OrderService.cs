@@ -86,6 +86,26 @@ namespace ECommerce.Service.Services.Orders
             return new TableResponse<List<OrderDto>> { Total = total, Items = orderDtos };
         }
 
+        public async Task<TableResponse<List<OrderFullInformationDto>>> GetAllOrdersFullAsync(TableOptions tableOptions, int customerId)
+        {
+            var entities = applicationDbContext.Orders
+                .Include(o => o.District)
+                .ThenInclude(d => d.Region)
+                .Include(o => o.Customer)
+                .ThenInclude(c => c.User)
+                .Include(o => o.OrderDetails)
+                .Where(x => x.CustomerId == customerId).AsQueryable();
+
+            var total = await entities.CountAsync();
+            var orders = await entities
+                 .Skip(tableOptions.First)
+                 .Take(tableOptions.Rows)
+                 .ToListAsync();
+
+            var orderDtos = mapper.Map<List<OrderFullInformationDto>>(orders);
+
+            return new TableResponse<List<OrderFullInformationDto>> { Total = total, Items = orderDtos };
+        }
         public async Task<ResponseModel<OrderDto>> GetOrderByIdAsync(int orderId, int customerId)
         {
             var entity = await applicationDbContext.Orders.FirstOrDefaultAsync(x => x.Id == orderId && x.CustomerId == customerId);
@@ -98,6 +118,23 @@ namespace ECommerce.Service.Services.Orders
             return ResponseModel<OrderDto>.Success(orderDto, "Order retrieved successfully", HttpStatusCode.OK);
         }
 
+        public async Task<ResponseModel<OrderFullInformationDto>> GetOrderFullByIdAsync(int orderId, int customerId)
+        {
+            var entity = await applicationDbContext.Orders
+                .Include(o => o.District)
+                .ThenInclude(d => d.Region)
+                .Include(o => o.Customer)
+                .ThenInclude(c => c.User)
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(x => x.Id == orderId);
+
+            if (entity is null)
+                return ResponseModel<OrderFullInformationDto>.Fail("Order not found", HttpStatusCode.NotFound);
+
+            var orderDto = mapper.Map<OrderFullInformationDto>(entity);
+
+            return ResponseModel<OrderFullInformationDto>.Success(orderDto, "Order retrieved successfully", HttpStatusCode.OK);
+        }
         public async Task<ResponseModel<OrderDto>> UpdateOrderAsync(OrderUpdateDto updateDto, int orderId, int customerId)
         {
             var entity = await applicationDbContext.Orders.FirstOrDefaultAsync(x => x.Id == orderId && x.CustomerId == customerId);

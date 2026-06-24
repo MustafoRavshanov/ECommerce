@@ -39,6 +39,21 @@ public class CustomerService(ApplicationDbContext applicationDbContext, IMapper 
         return new TableResponse<List<CustomerDto>>() { Total=count, Items = resultDtos };
     }
 
+    public async Task<TableResponse<List<CustomerFullInformationDto>>> GetAllCustomersFullAsync(TableOptions options)
+    {
+        var entities = applicationDbContext.Customers.AsQueryable();
+        var count = await entities.CountAsync();
+
+        var customers = await entities
+            .Skip(options.First)
+            .Take(options.Rows)
+            .ToListAsync();
+
+        var resultDtos = mapper.Map<List<CustomerFullInformationDto>>(customers);
+
+        return new TableResponse<List<CustomerFullInformationDto>>() { Total = count, Items = resultDtos };
+    }
+
     public async Task<ResponseModel<CustomerDto>> GetCustomerByIdAsync(int customerId)
     {
         var customer =await applicationDbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
@@ -49,6 +64,18 @@ public class CustomerService(ApplicationDbContext applicationDbContext, IMapper 
         var resultDto = mapper.Map<CustomerDto>(customer);
 
         return ResponseModel<CustomerDto>.Success(resultDto, "Customer retrieved successfully", HttpStatusCode.OK);
+    }
+
+    public async Task<ResponseModel<CustomerFullInformationDto>> GetCustomerFullByIdAsync(int customerId)
+    {
+        var customer = await applicationDbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
+
+        if (customer is null)
+            return ResponseModel<CustomerFullInformationDto>.Fail("Costumer not found !", HttpStatusCode.NotFound);
+
+        var resultDto = mapper.Map<CustomerFullInformationDto>(customer);
+
+        return ResponseModel<CustomerFullInformationDto>.Success(resultDto, "Customer retrieved successfully", HttpStatusCode.OK);
     }
 
     public async Task<ResponseModel<CustomerDto>> UpdateCustomerAsync(CustomerUpdateDto updateDto, int customerId)

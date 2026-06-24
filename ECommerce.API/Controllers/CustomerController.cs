@@ -17,9 +17,17 @@ public class CustomerController(ICustomerService customerService): ControllerBas
     public async Task<TableResponse<List<CustomerDto>>> GetAllAsync([FromQuery] TableOptions options)=>
         await customerService.GetAllCustomersAsync(options);
 
+    [HttpGet("get-all-full")]
+    public async Task<TableResponse<List<CustomerFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options) =>
+        await customerService.GetAllCustomersFullAsync(options);
+
+    [HttpGet("get-full-by-id/{id}")]
+    public async Task<ResponseModel<CustomerFullInformationDto>> GetFullByIdAsync([FromRoute] int id)=>
+        await customerService.GetCustomerFullByIdAsync(id);
+
     [HttpGet("get-by-id/{id}")]
-    public async Task<ResponseModel<CustomerDto>> GetByIdAsync([FromRoute] int id)=>
-        await customerService.GetCustomerByIdAsync(id);
+    public async Task<ResponseModel<CustomerDto>> GetByIdAsync([FromRoute] int id) =>
+       await customerService.GetCustomerByIdAsync(id);
 
     [HttpPut("update/{id}")]
     public async Task<ResponseModel<CustomerDto>> UpdateAsync(CustomerUpdateDto dto, [FromRoute] int id)=>

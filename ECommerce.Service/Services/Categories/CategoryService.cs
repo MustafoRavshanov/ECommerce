@@ -38,6 +38,21 @@ namespace ECommerce.Service.Services.Categories
             return new TableResponse<List<CategoryDto>> { Total = count, Items = categoryDtos };
         }
 
+        public async Task<TableResponse<List<CategoryFullInformationDto>>> GetAllCategoriesFullAsync(TableOptions tableOptions)
+        {
+            var entities = applicationDbContext.Categories.Include(c=>c.Products).AsQueryable();
+            var count = await entities.CountAsync();
+
+            var categories = await entities
+                .Skip(tableOptions.First)
+                .Take(tableOptions.Rows)
+                .ToListAsync();
+
+            var categoryDtos = mapper.Map<List<CategoryFullInformationDto>>(categories);
+
+            return new TableResponse<List<CategoryFullInformationDto>> { Total = count, Items = categoryDtos };
+        }
+
         public async Task<ResponseModel<CategoryDto>> GetCategoryByIdAsync(int categoryId)
         {
             var entity = await applicationDbContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
@@ -48,6 +63,18 @@ namespace ECommerce.Service.Services.Categories
             var categoryDto = mapper.Map<CategoryDto>(entity);
 
             return ResponseModel<CategoryDto>.Success(categoryDto, "Category retrieved successfully", HttpStatusCode.OK);
+        }
+
+        public async Task<ResponseModel<CategoryFullInformationDto>> GetCategoryFullByIdAsync(int categoryId)
+        {
+            var entity = await applicationDbContext.Categories.Include(c=>c.Products).FirstOrDefaultAsync(x => x.Id == categoryId);
+
+            if (entity is null)
+                return ResponseModel<CategoryFullInformationDto>.Fail("Category not found", HttpStatusCode.NotFound);
+
+            var categoryDto = mapper.Map<CategoryFullInformationDto>(entity);
+
+            return ResponseModel<CategoryFullInformationDto>.Success(categoryDto, "Category retrieved successfully", HttpStatusCode.OK);
         }
 
         public async Task<ResponseModel<CategoryDto>> UpdateCategoryAsync(CategoryUpdateDto updateDto, int categoryId)

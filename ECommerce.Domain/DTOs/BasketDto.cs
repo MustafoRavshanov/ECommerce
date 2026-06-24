@@ -17,19 +17,6 @@ public class BasketItemDto
     public string? ProductImageUrl { get; set; }
 
     public decimal TotalPrice => Quantity * ProductPrice;
-
-}
-
-public class BasketFullInformationDto
-{
-    public int Id { get; set; }
-    public int Quantity { get; set; }
-
-    public decimal ProductPrice { get; set; }
-    public string? ProductName { get; set; }
-    public string? ProductImageUrl { get; set; }
-
-    public decimal TotalPrice => Quantity * ProductPrice;
     public DateTime CreatedAt { get; set; }
 }
 

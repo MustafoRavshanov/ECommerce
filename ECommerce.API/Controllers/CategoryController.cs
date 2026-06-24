@@ -16,9 +16,17 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     public async Task<TableResponse<List<CategoryDto>>> GetAllAsync([FromQuery] TableOptions options) =>
         await categoryService.GetAllCategoriesAsync(options);
 
+    [HttpGet("get-all-full")]
+    public async Task<TableResponse<List<CategoryFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options) =>
+        await categoryService.GetAllCategoriesFullAsync(options);
+
     [HttpGet("get-by-id/{id}")]
     public async Task<ResponseModel<CategoryDto>> GetByIdAsync([FromRoute] int id) =>
         await categoryService.GetCategoryByIdAsync(id);
+
+    [HttpGet("get-full-by-id/{id}")]
+    public async Task<ResponseModel<CategoryFullInformationDto>> GetFullByIdAsync([FromRoute] int id) =>
+        await categoryService.GetCategoryFullByIdAsync(id);
 
     [HttpPut("update/{id}")]
     public async Task<ResponseModel<CategoryDto>> UpdateAsync(CategoryUpdateDto dto, [FromRoute] int id) =>

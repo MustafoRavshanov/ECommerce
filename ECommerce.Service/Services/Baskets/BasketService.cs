@@ -59,7 +59,19 @@ public class BasketService(ApplicationDbContext applicationDbContext, IMapper ma
         return ResponseModel<BasketDto>.Success(basketDto, "Basket retrieved successfully", HttpStatusCode.OK);
     }
 
+    public async Task<ResponseModel<BasketItemDto>> GetBasketByIdAsync(int customerId, int basketId)
+    {
+        var item = await applicationDbContext.Baskets
+            .Include(x => x.Product)
+            .FirstOrDefaultAsync(x => x.CustomerId == customerId && x.Id == basketId);
 
+        if (item is null)
+            return ResponseModel<BasketItemDto>.Fail("Basket not found", HttpStatusCode.NotFound);
+
+        var dto= mapper.Map<BasketItemDto>(item);
+
+        return ResponseModel<BasketItemDto>.Success(dto, "Basket retrieved successfully", HttpStatusCode.OK);
+    }
     public async Task<ResponseModel<BasketDto>> UpdateBasketAsync(BasketUpdateDto basketUpdateDto, int basketId, int customerId)
     {
         var entity = await applicationDbContext.Baskets.FirstOrDefaultAsync(x => x.Id == basketId && x.CustomerId == customerId);

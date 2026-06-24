@@ -12,7 +12,7 @@ public class CustomerDto
 
 public class CustomerFullInformationDto
 {
-    public int DistrictId { get; set; }
+    public string? DistrictName { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? PhoneNumber { get; set; }
@@ -25,7 +25,7 @@ public class CustomerCreateDto
     public int DistrictId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-    public string? PhoneNumber { get; set; }
+    public string? PhoneNumber{ get; set; }
     public long ChatId { get; set; }
     public string? Address { get; set; }
 }

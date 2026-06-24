@@ -86,7 +86,7 @@ public class MappingProfile:Profile
         CreateMap<RoleUpdateDto, Role>();
 
         CreateMap<RegisterDto, User>()
-    .ForMember(dest => dest.Password, opt => opt.Ignore())  
+    .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())  
     .ForMember(dest => dest.RoleId, opt => opt.Ignore())    
     .ForMember(dest => dest.IsActive, opt => opt.Ignore());
 

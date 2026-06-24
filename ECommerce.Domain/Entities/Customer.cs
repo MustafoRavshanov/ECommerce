@@ -11,7 +11,7 @@ public class Customer
     public int Id { get; set; }
 
     [Column("district_id")]
-    public int DistrictId { get; set; }
+    public int? DistrictId { get; set; }
 
     [Column("first_name")]
     public string? FirstName { get; set; }

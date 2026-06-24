@@ -13,7 +13,7 @@ public class User
     [Column("phone_number")]
     public required string PhoneNumber { get; set; }
     [Column("Password_hash")]
-    public required string Password { get; set; }
+    public required string PasswordHash { get; set; }
 
     [Column("first_name")]
     public string? FirstName { get; set; }

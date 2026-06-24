@@ -22,6 +22,8 @@ public class CustomerFullInformationDto
 }
 public class CustomerCreateDto
 {
+    public string? Password { get; set; }
+    public int RoleId { get; set; }
     public int DistrictId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }

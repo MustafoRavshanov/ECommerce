@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace ECommerce.Domain.DTOs;
@@ -27,6 +28,9 @@ public class UserFullDto
 public class UserCreateDto
 {
     public string? PhoneNumber { get; set; }
+
+    [MinLength(7, ErrorMessage = "Parol kamida 7 ta belgi bo'lishi kerak")]
+    [MaxLength(14, ErrorMessage = "Parol ko'pi bilan 14 ta belgi bo'lishi kerak")]
     public string? Password { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }

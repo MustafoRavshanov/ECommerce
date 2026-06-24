@@ -33,7 +33,7 @@ namespace ECommerce.Service.Services.Orders
             var entity = new Order
             {
                 CustomerId = customerId,
-                DistrictId = customer.DistrictId,
+                DistrictId = customer.DistrictId ?? 0,
                 Address = customer.Address,
                 PaymentType = createDto.PaymentType,
                 TotalPrice = totalPrice,

@@ -5,6 +5,7 @@ using ECommerce.Domain.Helper;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Service.Services.Customers;
 
@@ -12,15 +13,26 @@ public class CustomerService(ApplicationDbContext applicationDbContext, IMapper 
 {
     public async Task<ResponseModel<CustomerDto>> AddCustomerAsync(CustomerCreateDto createDto)
     {
-        var entity=mapper.Map<Customer>(createDto);
-        await applicationDbContext.AddAsync(entity);
+        var user = new User
+        {
+            PhoneNumber = createDto.PhoneNumber,
+            PasswordHash = BC.HashPassword(createDto.Password),
+            RoleId = createDto.RoleId,
+            IsActive = true
+        };
+        await applicationDbContext.Users.AddAsync(user);
+        await applicationDbContext.SaveChangesAsync();  
+
+        var entity = mapper.Map<Customer>(createDto);
+        entity.Id = user.Id; 
+
+        await applicationDbContext.Customers.AddAsync(entity);
         var result = await applicationDbContext.SaveChangesAsync();
 
-        if(result<1)
+        if (result < 1)
             return ResponseModel<CustomerDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        var resultDto= mapper.Map<CustomerDto>(entity);
-
+        var resultDto = mapper.Map<CustomerDto>(entity);
         return ResponseModel<CustomerDto>.Success(resultDto, "Customer created successfully", HttpStatusCode.Created);
     }
 

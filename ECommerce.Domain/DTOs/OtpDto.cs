@@ -1,4 +1,6 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace ECommerce.Domain.DTOs;
 
 public class SendOtpDto
@@ -15,6 +17,9 @@ public class VerifyOtpDto
 public class RegisterDto
 {
     public string? PhoneNumber { get; set; }
+
+    [MinLength(7, ErrorMessage ="Password should be at least 7 characters")]
+    [MaxLength(14, ErrorMessage ="Password should be at most 14 characters")]
     public string? Password { get; set; }
     public string? ConfirmedPassword { get; set; }
     public string? FirstName { get; set; }

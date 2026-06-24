@@ -12,6 +12,7 @@ using ECommerce.Service.Services.Regions;
 using ECommerce.Service.Services.Role;
 using ECommerce.Service.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -25,7 +26,6 @@ builder.Services.AddControllers()
         option.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -39,6 +39,27 @@ builder.Services.AddScoped<IDistrictService, DistrictService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .Select(x => x.Value.Errors.First().ErrorMessage)
+                .ToList();
+
+            var response = new
+            {
+                IsSuccess = false,
+                Message = errors.First(),
+                StatusCode = 400
+            };
+
+            return new BadRequestObjectResult(response);
+        };
+    });
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 

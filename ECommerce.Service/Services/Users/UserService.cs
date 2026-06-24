@@ -136,13 +136,13 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
         if (entity is null)
             return ResponseModel<bool>.Fail("User with this id not found", HttpStatusCode.NotFound);
 
-        if (!BC.Verify(userUpdatePasswordDto.OldPassword, entity.Password))
+        if (!BC.Verify(userUpdatePasswordDto.OldPassword, entity.PasswordHash))
             return ResponseModel<bool>.Fail("old parol is incorrect", HttpStatusCode.BadRequest);
 
         if (userUpdatePasswordDto.NewPassword != userUpdatePasswordDto.ConfirmPassword)
             return ResponseModel<bool>.Fail("Enter same code with new parol", HttpStatusCode.BadRequest);
 
-        entity.Password=BC.HashPassword(userUpdatePasswordDto.NewPassword);
+        entity.PasswordHash=BC.HashPassword(userUpdatePasswordDto.NewPassword);
 
         var result= await applicationDbContext.SaveChangesAsync();
 

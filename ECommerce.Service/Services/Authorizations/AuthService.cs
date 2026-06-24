@@ -22,7 +22,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
         if (user is null)
             return ResponseModel<AuthResponseDto>.Fail("PhoneNumber or Password incorrect", HttpStatusCode.Unauthorized);
 
-        if (!BC.Verify(dto.Password, user.Password))
+        if (!BC.Verify(dto.Password, user.PasswordHash))
             return ResponseModel<AuthResponseDto>.Fail("PhoneNumber or Password incorrect", HttpStatusCode.Unauthorized);
 
         if (!user.IsActive)
@@ -64,7 +64,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
             return ResponseModel<AuthResponseDto>.Fail("Customer role doesn't exists", HttpStatusCode.InternalServerError);
 
         var user = mapper.Map<User>(dto);
-        user.Password = BC.HashPassword(dto.Password);
+        user.PasswordHash = BC.HashPassword(dto.Password);
         user.RoleId=customerRole.Id;
         user.IsActive = true;
 

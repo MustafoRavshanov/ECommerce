@@ -18,7 +18,7 @@ public class BasketService(ApplicationDbContext applicationDbContext, IMapper ma
 
         if (existingItem != null)
         {
-            if(product.Stock < basketCreateDto.Quantity)
+            if(product.StockQuantity < basketCreateDto.Quantity)
                 return ResponseModel<BasketDto>.Fail("Not enough stock for the product", HttpStatusCode.BadRequest);
 
             existingItem.Quantity += basketCreateDto.Quantity;
@@ -31,10 +31,10 @@ public class BasketService(ApplicationDbContext applicationDbContext, IMapper ma
 
         await applicationDbContext.Baskets.AddAsync(entity);
 
-        if(product.Stock < basketCreateDto.Quantity)
+        if(product.StockQuantity < basketCreateDto.Quantity)
             return ResponseModel<BasketDto>.Fail("Not enough stock for the product", HttpStatusCode.BadRequest);
 
-        product.Stock -= basketCreateDto.Quantity;
+        product.StockQuantity -= basketCreateDto.Quantity;
 
         var result = await applicationDbContext.SaveChangesAsync();
 

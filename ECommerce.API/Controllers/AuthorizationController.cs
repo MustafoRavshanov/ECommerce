@@ -1,12 +1,14 @@
 ﻿using ECommerce.Domain.DTOs;
 using ECommerce.Domain.Helper;
 using ECommerce.Service.Services.Authorizations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
 [ApiController]
 [Route("api/authorization")]
+[AllowAnonymous]
 public class AuthorizationController(IAuthService authService): ControllerBase
 {
     [HttpPost("send-otp")]

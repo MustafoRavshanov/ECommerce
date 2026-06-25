@@ -47,6 +47,10 @@ public class ApplicationDbContext(IConfiguration configuration):DbContext
             .HasOne(rp => rp.Role)
             .WithMany(r => r.RolePermissions)
             .HasForeignKey(rp => rp.RoleId);
+
+        modelBuilder.Entity<Customer>()
+            .Property(c => c.Id)
+            .ValueGeneratedNever();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

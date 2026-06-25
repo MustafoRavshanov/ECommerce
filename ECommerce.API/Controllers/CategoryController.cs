@@ -1,14 +1,19 @@
-﻿using ECommerce.Domain.DTOs;
+﻿using ECommerce.API.Filters;
+using ECommerce.Domain.DTOs;
+using ECommerce.Domain.Enums;
 using ECommerce.Domain.Helper;
 using ECommerce.Service.Services.Categories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 [ApiController]
 [Route("api/category")]
+[Authorize]
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpPost("create")]
+    [HasPermission(Permission.CategoriesManage)]
     public async Task<ResponseModel<CategoryDto>> CreateAsync(CategoryCreateDto dto) =>
         await categoryService.AddCategoryAsync(dto);
 
@@ -29,10 +34,12 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
         await categoryService.GetCategoryFullByIdAsync(id);
 
     [HttpPut("update/{id}")]
+    [HasPermission(Permission.CategoriesManage)]
     public async Task<ResponseModel<CategoryDto>> UpdateAsync(CategoryUpdateDto dto, [FromRoute] int id) =>
         await categoryService.UpdateCategoryAsync(dto, id);
 
     [HttpDelete("delete/{id}")]
+    [HasPermission(Permission.CategoriesManage)]
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id) =>
         await categoryService.DeleteCategoryAsync(id);
 }

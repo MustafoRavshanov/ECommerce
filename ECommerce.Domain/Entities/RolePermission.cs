@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ECommerce.Domain.Entities;
 
-[Table("RolePermissions")]
+[Table("role_permissions")]
 public class RolePermission
 {
     [Column("role_id")]

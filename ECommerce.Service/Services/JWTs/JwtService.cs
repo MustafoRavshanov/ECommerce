@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Entities;
+using ECommerce.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -17,7 +18,7 @@ public class JwtService(IConfiguration configuration) : IJwtService
     public string GenerateToken(User user)
     {
         var permissions = user.Role.RolePermissions
-            .Select(rp => rp.Permission.ToString())
+            .Select(rp => Enum.GetName(typeof(Permission), rp.Permission)!)
             .ToList();
 
         var claims = new List<Claim>

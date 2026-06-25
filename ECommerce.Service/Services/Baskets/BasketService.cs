@@ -12,30 +12,31 @@ public class BasketService(ApplicationDbContext applicationDbContext, IMapper ma
 {
     public async Task<ResponseModel<BasketDto>> AddBasketAsync(BasketCreateDto basketCreateDto, int customerId)
     {
-        var existingItem = await applicationDbContext.Baskets.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.ProductId == basketCreateDto.ProductId);
-
         var product = await applicationDbContext.Products.FirstOrDefaultAsync(x => x.Id == basketCreateDto.ProductId);
 
-        if (existingItem != null)
-        {
-            if(product.StockQuantity < basketCreateDto.Quantity)
-                return ResponseModel<BasketDto>.Fail("Not enough stock for the product", HttpStatusCode.BadRequest);
-
-            existingItem.Quantity += basketCreateDto.Quantity;
-            await applicationDbContext.SaveChangesAsync();
-           
-            return await GetMyBasketAsync(customerId);
-        }
-        var entity = mapper.Map<Basket>(basketCreateDto);
-        entity.CustomerId = customerId;
-
-        await applicationDbContext.Baskets.AddAsync(entity);
+        if (product is null)
+            return ResponseModel<BasketDto>.Fail("Product not found", HttpStatusCode.NotFound);
 
         if(product.StockQuantity < basketCreateDto.Quantity)
             return ResponseModel<BasketDto>.Fail("Not enough stock for the product", HttpStatusCode.BadRequest);
 
-        product.StockQuantity -= basketCreateDto.Quantity;
+        var existingItem = await applicationDbContext.Baskets
+            .FirstOrDefaultAsync(x => x.CustomerId == customerId && 
+            x.ProductId == basketCreateDto.ProductId);
 
+        if (existingItem != null)
+        {
+            existingItem.Quantity += basketCreateDto.Quantity;
+            product.StockQuantity -= basketCreateDto.Quantity;
+        }
+        else
+        {
+            var entity = mapper.Map<Basket>(basketCreateDto);
+            entity.CustomerId = customerId;
+            await applicationDbContext.Baskets.AddAsync(entity);
+            product.StockQuantity -= basketCreateDto.Quantity;
+        }
+        
         var result = await applicationDbContext.SaveChangesAsync();
 
         if (result < 1)
@@ -61,20 +62,22 @@ public class BasketService(ApplicationDbContext applicationDbContext, IMapper ma
 
     public async Task<ResponseModel<BasketItemDto>> GetBasketByIdAsync(int customerId, int basketId)
     {
-        var item = await applicationDbContext.Baskets
+        var basket = await applicationDbContext.Baskets
             .Include(x => x.Product)
             .FirstOrDefaultAsync(x => x.CustomerId == customerId && x.Id == basketId);
 
-        if (item is null)
+        if (basket is null)
             return ResponseModel<BasketItemDto>.Fail("Basket not found", HttpStatusCode.NotFound);
 
-        var dto= mapper.Map<BasketItemDto>(item);
+        var dto= mapper.Map<BasketItemDto>(basket);
 
         return ResponseModel<BasketItemDto>.Success(dto, "Basket retrieved successfully", HttpStatusCode.OK);
     }
     public async Task<ResponseModel<BasketDto>> UpdateBasketAsync(BasketUpdateDto basketUpdateDto, int basketId, int customerId)
     {
-        var entity = await applicationDbContext.Baskets.FirstOrDefaultAsync(x => x.Id == basketId && x.CustomerId == customerId);
+        var entity = await applicationDbContext.Baskets
+            .Include(x=>x.Product)
+            .FirstOrDefaultAsync(x => x.Id == basketId && x.CustomerId == customerId);
 
         if (entity is null)
             return ResponseModel<BasketDto>.Fail("Basket item not found", HttpStatusCode.NotFound);

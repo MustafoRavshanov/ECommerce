@@ -87,7 +87,7 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<RoleDto>> GetRoleByIdAsync(int roleId)
     {
-        var entity = applicationDbContext.Roles
+        var entity = await applicationDbContext.Roles
             .Include(u => u.Users)
             .Include(a => a.RolePermissions)
             .FirstOrDefaultAsync(x => x.Id == roleId);

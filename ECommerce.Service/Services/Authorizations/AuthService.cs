@@ -15,6 +15,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
     public async Task<ResponseModel<AuthResponseDto>> LoginAsync(LoginDto dto)
     {
         var user = await applicationDbContext.Users
+            .AsNoTracking()
             .Include(u => u.Role)
             .ThenInclude(a => a.RolePermissions)
             .FirstOrDefaultAsync(x => x.PhoneNumber == dto.PhoneNumber);
@@ -74,7 +75,13 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
         if (result < 1)
             return ResponseModel<AuthResponseDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        var customer = new Customer { Id = user.Id };
+        var customer = new Customer 
+        { 
+            Id = user.Id,
+            FirstName=user.FirstName,
+            LastName=user.LastName,
+            PhoneNumber=user.PhoneNumber,
+        };
         await applicationDbContext.Customers.AddAsync(customer);
         var result2 = await applicationDbContext.SaveChangesAsync();
 
@@ -96,6 +103,11 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
 
     public async Task<ResponseModel<bool>> SendOtpAsync(SendOtpDto dto)
     {
+        var user = await applicationDbContext.Users.FirstOrDefaultAsync(x => x.PhoneNumber == dto.PhoneNumber);
+
+        if (user != null)
+            return ResponseModel<bool>.Fail("User with this phone number already exists", HttpStatusCode.Conflict);
+
         var code = new Random().Next(100000, 999999);
         var oldOtps = applicationDbContext.OtpCodes.Where(x => x.PhoneNumber == dto.PhoneNumber);
         applicationDbContext.OtpCodes.RemoveRange(oldOtps);

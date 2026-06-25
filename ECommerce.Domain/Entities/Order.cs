@@ -39,10 +39,12 @@ public class Order
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [Column("address")]
+    public string? Address { get; set; }
+
 
     // Navigation property
     public Customer? Customer { get; set; }
     public District? District { get; set; }
     public ICollection<OrderDetail>? OrderDetails { get; set; }
-    public string? Address { get; set; }
 }

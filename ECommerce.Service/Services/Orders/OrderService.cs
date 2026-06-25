@@ -126,7 +126,7 @@ namespace ECommerce.Service.Services.Orders
                 .Include(o => o.Customer)
                 .ThenInclude(c => c.User)
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(x => x.Id == orderId);
+                .FirstOrDefaultAsync(x => x.Id == orderId && x.CustomerId==customerId);
 
             if (entity is null)
                 return ResponseModel<OrderFullInformationDto>.Fail("Order not found", HttpStatusCode.NotFound);

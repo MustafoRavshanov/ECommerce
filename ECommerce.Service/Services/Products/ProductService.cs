@@ -4,12 +4,7 @@ using ECommerce.Domain.Entities;
 using ECommerce.Domain.Helper;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECommerce.Service.Services.Products
 {
@@ -79,6 +74,7 @@ namespace ECommerce.Service.Services.Products
 
             return new TableResponse<List<ProductFullInformationDto>> { Total = count, Items = productDtos };
         }
+
         public async Task<ResponseModel<ProductFullDto>> GetProductByIdAsync(int productId)
         {
             var entity = await applicationDbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == productId);
@@ -102,6 +98,7 @@ namespace ECommerce.Service.Services.Products
 
             return ResponseModel<ProductFullInformationDto>.Success(productDto, "Product retrieved successfully", HttpStatusCode.OK);
         }
+
         public async Task<ResponseModel<ProductFullDto>> UpdateProductAsync(ProductUpdateDto updateDto, int productId)
         {
             var entity = await applicationDbContext.Products

@@ -51,7 +51,6 @@ public class RegionService(ApplicationDbContext applicationDbContext, IMapper ma
         return ResponseModel<RegionDto>.Success(regionDto, "Region retrieved successfully", HttpStatusCode.OK);
     }
 
-
     public async Task<ResponseModel<RegionDto>> UpdateRegionAsync(RegionUpdateDto regionUpdateDto, int regionId)
     {
         var entity = await applicationDbContext.Regions.FirstOrDefaultAsync(x => x.Id == regionId);

@@ -28,7 +28,7 @@ public class OrderController(IOrderService orderService): ControllerBase
     }
 
     [HttpGet("get-all-full/{customerId}")]
-    [HasPermission(Permission.OrderManage)]
+    [HasPermission(Permission.OrdersView)]
     public async Task<TableResponse<List<OrderFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options, [FromRoute] int customerId) =>
         await orderService.GetAllOrdersFullAsync(options, customerId);
 
@@ -40,11 +40,12 @@ public class OrderController(IOrderService orderService): ControllerBase
     }
 
     [HttpGet("get-full-by-id/{id}/{customerId}")]
-    [HasPermission(Permission.OrderManage)]
+    [HasPermission(Permission.OrdersView)]
     public async Task<ResponseModel<OrderFullInformationDto>> GetFullByIdAsync([FromRoute] int id, [FromRoute] int customerId) =>
         await orderService.GetOrderFullByIdAsync(id, customerId);
 
     [HttpPut("update/{id}")]
+    [HasPermission(Permission.OrdersEdit)]
     public async Task<ResponseModel<OrderDto>> UpdateAsync(OrderUpdateDto dto, [FromRoute] int id)
     { 
         var customerId=User.GetUserId();
@@ -52,6 +53,7 @@ public class OrderController(IOrderService orderService): ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [HasPermission(Permission.OrdersCancel)]
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id)
     { 
         var customerId=User.GetUserId() ;

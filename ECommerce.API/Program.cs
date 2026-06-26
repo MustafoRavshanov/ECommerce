@@ -13,6 +13,7 @@ using ECommerce.Service.Services.Role;
 using ECommerce.Service.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -26,6 +27,7 @@ builder.Services.AddControllers()
         option.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -121,6 +123,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+using (var scope = app.Services.CreateScope())
+{ 
+    var applicationDbContext=scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    applicationDbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();

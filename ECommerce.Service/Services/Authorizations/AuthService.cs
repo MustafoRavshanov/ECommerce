@@ -120,6 +120,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
             IsUsed = false,
         };
 
+
         await applicationDbContext.OtpCodes.AddAsync(otp);
         var result = await applicationDbContext.SaveChangesAsync();
 

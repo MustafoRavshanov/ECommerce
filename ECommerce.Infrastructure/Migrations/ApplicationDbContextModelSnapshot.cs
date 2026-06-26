@@ -366,6 +366,18 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("role");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "SuperAdmin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Customer"
+                        });
                 });
 
             modelBuilder.Entity("ECommerce.Domain.Entities.RolePermission", b =>
@@ -381,6 +393,83 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasKey("RoleId", "Permission");
 
                     b.ToTable("role_permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 9
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 7
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 8
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 6
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 5
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 3
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 0
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 10
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 11
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            Permission = 12
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            Permission = 8
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            Permission = 5
+                        });
                 });
 
             modelBuilder.Entity("ECommerce.Domain.Entities.User", b =>
@@ -427,6 +516,19 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 6, 26, 5, 2, 33, 275, DateTimeKind.Utc).AddTicks(2041),
+                            FirstName = "Mustafo",
+                            IsActive = true,
+                            LastName = "Ravshanov",
+                            PasswordHash = "$2a$11$qu8hqLuEGj81OlYI9d1CQOofnkh04h6ZphjywmHSSknDyie5XNUG.",
+                            PhoneNumber = "500016252",
+                            RoleId = 1
+                        });
                 });
 
             modelBuilder.Entity("ECommerce.Domain.Entities.Basket", b =>

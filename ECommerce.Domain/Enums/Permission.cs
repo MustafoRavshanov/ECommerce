@@ -8,10 +8,17 @@ namespace ECommerce.Domain.Enums;
 
 public enum Permission
 {
-    ProductsManage,
-    OrderManage,
-    UserManage,
-    CategoriesManage,
-    AddressesManage,
-    RolesManage
+    ProductsView,   
+    ProductsCreate,   
+    ProductsEdit,    
+    ProductsDelete,   
+    OrdersView,       
+    OrdersEdit,       
+    OrdersCancel,     
+    UsersView,  
+    UsersUpdate,
+    UsersDelete,        
+    CategoriesManage, 
+    AddressesManage,  
+    RolesManage,
 }

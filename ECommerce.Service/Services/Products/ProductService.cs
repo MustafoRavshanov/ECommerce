@@ -145,8 +145,8 @@ public class ProductService(ApplicationDbContext applicationDbContext, IMapper m
         if (!string.IsNullOrWhiteSpace(searchOptions.SearchTerm))
         {
             entities = entities.Where(x =>
-                x.NameUz!.StartsWith(searchOptions.SearchTerm) ||
-                x.NameEn!.StartsWith(searchOptions.SearchTerm));
+                x.NameUz.StartsWith(searchOptions.SearchTerm) ||
+                x.NameEn.StartsWith(searchOptions.SearchTerm));
         }
 
         var count = await entities.CountAsync();

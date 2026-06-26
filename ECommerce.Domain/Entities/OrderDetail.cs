@@ -7,9 +7,7 @@ namespace ECommerce.Domain.Entities;
 [Table("order_detail")]
 public class OrderDetail
 {
-    [Column("id")]
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]   
+    [Column("id")] 
     public int Id { get; set; }
 
     [Column("order_id")]

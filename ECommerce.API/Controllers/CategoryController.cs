@@ -44,6 +44,6 @@ public class CategoryController(ICategoryService categoryService) : BaseControll
         await categoryService.DeleteCategoryAsync(id);
 
     [HttpGet("get-by-name")]
-    public async Task<TableResponse<List<CategoryDto>>> GetCategoryByName(SearchOptions options) =>
+    public async Task<TableResponse<List<CategoryDto>>> GetCategoryByName([FromQuery]SearchOptions options) =>
         await categoryService.GetCategoryByNameAsync(options);
 }

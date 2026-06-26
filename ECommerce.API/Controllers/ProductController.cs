@@ -47,7 +47,7 @@ public class ProductController(IProductService productService): BaseController
 
 
     [HttpGet("get-by-name")]
-    public async Task<TableResponse<List<ProductFullDto>>> GetProductByName(SearchOptions options) =>
+    public async Task<TableResponse<List<ProductFullDto>>> GetProductByName([FromQuery]SearchOptions options) =>
         await productService.GetProductByNameAsync(options);
 
     [HttpPut("add-quantity/{productId}")]

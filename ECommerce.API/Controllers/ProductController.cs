@@ -13,7 +13,7 @@ namespace ECommerce.API.Controllers;
 public class ProductController(IProductService productService): ControllerBase
 {
     [HttpPost("create")]
-    [HasPermission(Permission.ProductsManage)]
+    [HasPermission(Permission.ProductsCreate)]
     public async Task<ResponseModel<ProductFullDto>> CreateAsync(ProductCreateDto dto) =>
         await productService.AddProductAsync(dto);
 
@@ -22,7 +22,7 @@ public class ProductController(IProductService productService): ControllerBase
         await productService.GetAllProductsAsync(options);
 
     [HttpGet("get-all-full")]
-    [HasPermission(Permission.ProductsManage)]
+    [HasPermission(Permission.ProductsView)]
     public async Task<TableResponse<List<ProductFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options) =>
         await productService.GetAllProductFullAsync(options);
 
@@ -31,17 +31,17 @@ public class ProductController(IProductService productService): ControllerBase
         await productService.GetProductByIdAsync(id);
 
     [HttpGet("get-full-by-id/{id}")]
-    [HasPermission(Permission.ProductsManage)]
+    [HasPermission(Permission.ProductsView)]
     public async Task<ResponseModel<ProductFullInformationDto>> GetFullByIdAsync([FromRoute] int id) =>
     await productService.GetProductFullByIdAsync(id);
 
     [HttpPut("update/{id}")]
-    [HasPermission(Permission.ProductsManage)]
+    [HasPermission(Permission.ProductsEdit)]
     public async Task<ResponseModel<ProductFullDto>> UpdateAsync(ProductUpdateDto dto, [FromRoute] int id) =>
         await productService.UpdateProductAsync(dto, id);
 
     [HttpDelete("delete/{id}")]
-    [HasPermission(Permission.ProductsManage)]
+    [HasPermission(Permission.ProductsDelete)]
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id) =>
         await productService.DeleteProductAsync(id);
 

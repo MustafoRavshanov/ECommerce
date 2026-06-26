@@ -1,6 +1,8 @@
 ﻿using ECommerce.Domain.Entities;
+using ECommerce.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Infrastructure.Data;
 
@@ -51,6 +53,44 @@ public class ApplicationDbContext(IConfiguration configuration):DbContext
         modelBuilder.Entity<Customer>()
             .Property(c => c.Id)
             .ValueGeneratedNever();
+
+        modelBuilder.Entity<RolePermission>()
+            .HasKey(x => new { x.RoleId, x.Permission });
+
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "SuperAdmin" },
+            new Role { Id = 2, Name = "Customer" });
+
+        modelBuilder.Entity<RolePermission>().HasData(
+            new RolePermission { RoleId = 1, Permission = Permission.UsersDelete },
+            new RolePermission { RoleId = 1, Permission = Permission.UsersView },
+            new RolePermission { RoleId = 1, Permission = Permission.UsersUpdate },
+            new RolePermission { RoleId = 1, Permission = Permission.OrdersCancel },
+            new RolePermission { RoleId = 1, Permission = Permission.OrdersEdit },
+            new RolePermission { RoleId = 1, Permission = Permission.OrdersView },
+            new RolePermission { RoleId = 1, Permission = Permission.ProductsDelete },
+            new RolePermission { RoleId = 1, Permission = Permission.ProductsView },
+            new RolePermission { RoleId = 1, Permission = Permission.ProductsCreate },
+            new RolePermission { RoleId = 1, Permission = Permission.ProductsEdit },
+            new RolePermission { RoleId = 1, Permission = Permission.CategoriesManage },
+            new RolePermission { RoleId = 1, Permission = Permission.AddressesManage },
+            new RolePermission { RoleId = 1, Permission = Permission.RolesManage },
+            new RolePermission { RoleId = 2, Permission = Permission.UsersUpdate },
+            new RolePermission { RoleId = 2, Permission = Permission.OrdersEdit }
+            );
+
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            Id = 1,
+            PhoneNumber = "500016252",
+            PasswordHash = BC.HashPassword("mustafo2006"),
+            FirstName = "Mustafo",
+            LastName = "Ravshanov",
+            IsActive = true,
+            RoleId = 1,
+            CreatedAt= DateTime.UtcNow
+        });
+        
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

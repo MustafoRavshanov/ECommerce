@@ -14,37 +14,38 @@ namespace ECommerce.API.Controllers;
 [Authorize]
 public class UserController(IUserService userService):ControllerBase
 {
-    [HttpPost("create-user")]
-    [HasPermission(Permission.UserManage)]
-    public async Task<ResponseModel<UserDto>> CreateAsync([FromBody]UserCreateDto dto) =>
-        await userService.CreateUserAsync(dto);
+    //[HttpPost("create-user")]
+    //[HasPermission(Permission.UsersView)]
+    //public async Task<ResponseModel<UserDto>> CreateAsync([FromBody]UserCreateDto dto) =>
+    //    await userService.CreateUserAsync(dto);
 
     [HttpGet("get-all-users")]
-    [HasPermission(Permission.UserManage)]
+    [HasPermission(Permission.UsersView)]
     public async Task<TableResponse<List<UserFullDto>>> GetAllAsync([FromQuery] TableOptions options) =>
         await userService.GetAllUsersFullAsync(options);
 
     [HttpGet("get-user-by-id/{id}")]
-    [HasPermission(Permission.UserManage)]
+    [HasPermission(Permission.UsersView)]
     public async Task<ResponseModel<UserDto>> GetUserById([FromRoute] int id)=>
         await userService.GetUserByIdAsync(id);
 
     [HttpGet("get-user-full-by-id/{id}")]
-    [HasPermission(Permission.UserManage)]
+    [HasPermission(Permission.UsersView)]
     public async Task<ResponseModel<UserFullDto>> GetUserFullByIdAsync([FromRoute] int id) =>
         await userService.GetUserFullByIdAsync(id);
 
     [HttpGet("get-user-by-phone/{phoneNumber}")]
-    [HasPermission(Permission.UserManage)]
+    [HasPermission(Permission.UsersView)]
     public async Task<ResponseModel<UserDto>> GetUserByPhoneNumber([FromRoute] string phoneNumber) =>
         await userService.GetUserByPhoneNumberAsync(phoneNumber);
 
     [HttpGet("get-user-full-by-phone/{phoneNumber}")]
-    [HasPermission(Permission.UserManage)]
+    [HasPermission(Permission.UsersView)]
     public async Task<ResponseModel<UserFullDto>> GetUserFullByPhoneNumber([FromRoute] string phoneNumber) =>
         await userService.GetUserFullByPhoneNumberAsync(phoneNumber);
 
     [HttpPut("update-user")]
+    [HasPermission(Permission.UsersUpdate)]
     public async Task<ResponseModel<UserDto>> UpdateUserAsync( [FromBody] UserUpdateDto updateDto)
     {
         var userId = User.GetUserId();
@@ -52,6 +53,7 @@ public class UserController(IUserService userService):ControllerBase
     }
 
     [HttpPut("update-Password")]
+    [HasPermission(Permission.UsersUpdate)]
     public async Task<ResponseModel<bool>> UpatePasswordAsync( [FromBody] UserUpdatePasswordDto dto)
     {
         var userId = User.GetUserId(); 

@@ -4,10 +4,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace ECommerce.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,6 +29,23 @@ namespace ECommerce.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "otp_codes",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    phone_number = table.Column<string>(type: "text", nullable: true),
+                    code = table.Column<int>(type: "integer", nullable: false),
+                    expiration_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_used = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_otp_codes", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "region",
                 columns: table => new
                 {
@@ -37,6 +56,19 @@ namespace ECommerce.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_region", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "role",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_role", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,12 +121,54 @@ namespace ECommerce.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "customer",
+                name: "role_permissions",
+                columns: table => new
+                {
+                    role_id = table.Column<int>(type: "integer", nullable: false),
+                    permission = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_role_permissions", x => new { x.role_id, x.permission });
+                    table.ForeignKey(
+                        name: "FK_role_permissions_role_role_id",
+                        column: x => x.role_id,
+                        principalTable: "role",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "users",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    district_id = table.Column<int>(type: "integer", nullable: false),
+                    phone_number = table.Column<string>(type: "text", nullable: false),
+                    Password_hash = table.Column<string>(type: "text", nullable: false),
+                    first_name = table.Column<string>(type: "text", nullable: true),
+                    last_name = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    role_id = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_users", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_users_role_role_id",
+                        column: x => x.role_id,
+                        principalTable: "role",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "customer",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false),
+                    district_id = table.Column<int>(type: "integer", nullable: true),
                     first_name = table.Column<string>(type: "text", nullable: true),
                     last_name = table.Column<string>(type: "text", nullable: true),
                     phone_number = table.Column<string>(type: "text", nullable: true),
@@ -109,6 +183,11 @@ namespace ECommerce.Infrastructure.Migrations
                         name: "FK_customer_district_district_id",
                         column: x => x.district_id,
                         principalTable: "district",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_customer_users_id",
+                        column: x => x.id,
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -156,7 +235,7 @@ namespace ECommerce.Infrastructure.Migrations
                     feedback = table.Column<string>(type: "text", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: true)
+                    address = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -204,6 +283,42 @@ namespace ECommerce.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "role",
+                columns: new[] { "id", "name" },
+                values: new object[,]
+                {
+                    { 1, "SuperAdmin" },
+                    { 2, "Customer" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "role_permissions",
+                columns: new[] { "permission", "role_id" },
+                values: new object[,]
+                {
+                    { 0, 1 },
+                    { 1, 1 },
+                    { 2, 1 },
+                    { 3, 1 },
+                    { 4, 1 },
+                    { 5, 1 },
+                    { 6, 1 },
+                    { 7, 1 },
+                    { 8, 1 },
+                    { 9, 1 },
+                    { 10, 1 },
+                    { 11, 1 },
+                    { 12, 1 },
+                    { 5, 2 },
+                    { 8, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "users",
+                columns: new[] { "id", "created_at", "first_name", "is_active", "last_name", "Password_hash", "phone_number", "role_id" },
+                values: new object[] { 1, new DateTime(2026, 6, 26, 5, 2, 33, 275, DateTimeKind.Utc).AddTicks(2041), "Mustafo", true, "Ravshanov", "$2a$11$qu8hqLuEGj81OlYI9d1CQOofnkh04h6ZphjywmHSSknDyie5XNUG.", "500016252", 1 });
+
             migrationBuilder.CreateIndex(
                 name: "IX_basket_customer_id",
                 table: "basket",
@@ -248,6 +363,11 @@ namespace ECommerce.Infrastructure.Migrations
                 name: "IX_product_category_id",
                 table: "product",
                 column: "category_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_role_id",
+                table: "users",
+                column: "role_id");
         }
 
         /// <inheritdoc />
@@ -258,6 +378,12 @@ namespace ECommerce.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "order_detail");
+
+            migrationBuilder.DropTable(
+                name: "otp_codes");
+
+            migrationBuilder.DropTable(
+                name: "role_permissions");
 
             migrationBuilder.DropTable(
                 name: "order");
@@ -275,7 +401,13 @@ namespace ECommerce.Infrastructure.Migrations
                 name: "district");
 
             migrationBuilder.DropTable(
+                name: "users");
+
+            migrationBuilder.DropTable(
                 name: "region");
+
+            migrationBuilder.DropTable(
+                name: "role");
         }
     }
 }

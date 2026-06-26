@@ -13,4 +13,5 @@ public class RolePermission
     public Permission Permission { get; set; }
 
     public Role? Role { get; set; }
+
 }

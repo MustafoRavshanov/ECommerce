@@ -9,10 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-[ApiController]
 [Route("api/customer")]
 [Authorize]
-public class CustomerController(ICustomerService customerService): ControllerBase
+public class CustomerController(ICustomerService customerService): BaseController
 {
     //[HttpPost("create")]
     //[HasPermission(Permission.UsersView)]
@@ -41,11 +40,8 @@ public class CustomerController(ICustomerService customerService): ControllerBas
 
     [HttpPut("update")]
     [HasPermission(Permission.UsersUpdate)]
-    public async Task<ResponseModel<CustomerDto>> UpdateAsync(CustomerUpdateDto dto)
-    {
-        var customerId = User.GetUserId();
-        return await customerService.UpdateCustomerAsync(dto, customerId);
-    }
+    public async Task<ResponseModel<CustomerDto>> UpdateAsync(CustomerUpdateDto dto) =>
+        await customerService.UpdateCustomerAsync(dto, CurrentUserId);
 
     [HttpDelete("delete/{id}")]
     [HasPermission(Permission.UsersDelete)]

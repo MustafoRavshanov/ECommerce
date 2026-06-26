@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-[ApiController]
 [Route("api/role")]
 [Authorize]
-public class RoleController([FromBody] IRoleService roleService): ControllerBase
+public class RoleController([FromBody] IRoleService roleService): BaseController
 {
     [HttpPost("create-role")]
     [HasPermission(Permission.RolesManage)]

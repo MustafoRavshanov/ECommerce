@@ -9,10 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-[ApiController]
 [Route("api/user")]
 [Authorize]
-public class UserController(IUserService userService):ControllerBase
+public class UserController(IUserService userService) : BaseController
 {
     //[HttpPost("create-user")]
     //[HasPermission(Permission.UsersView)]
@@ -46,17 +45,11 @@ public class UserController(IUserService userService):ControllerBase
 
     [HttpPut("update-user")]
     [HasPermission(Permission.UsersUpdate)]
-    public async Task<ResponseModel<UserDto>> UpdateUserAsync( [FromBody] UserUpdateDto updateDto)
-    {
-        var userId = User.GetUserId();
-        return await userService.UpdateUserAsync(userId, updateDto);
-    }
+    public async Task<ResponseModel<UserDto>> UpdateUserAsync( [FromBody] UserUpdateDto updateDto) =>
+        await userService.UpdateUserAsync(CurrentUserId, updateDto);
 
     [HttpPut("update-Password")]
     [HasPermission(Permission.UsersUpdate)]
-    public async Task<ResponseModel<bool>> UpatePasswordAsync( [FromBody] UserUpdatePasswordDto dto)
-    {
-        var userId = User.GetUserId(); 
-        return await userService.UpdateUserPasswordAsync(userId, dto);
-    }
+    public async Task<ResponseModel<bool>> UpatePasswordAsync( [FromBody] UserUpdatePasswordDto dto) =>
+        await userService.UpdateUserPasswordAsync(CurrentUserId, dto);
 }

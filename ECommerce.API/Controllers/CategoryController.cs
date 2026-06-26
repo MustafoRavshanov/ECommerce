@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
-[ApiController]
+
 [Route("api/category")]
 [Authorize]
-public class CategoryController(ICategoryService categoryService) : ControllerBase
+public class CategoryController(ICategoryService categoryService) : BaseController
 {
     [HttpPost("create")]
     [HasPermission(Permission.CategoriesManage)]
@@ -42,4 +42,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     [HasPermission(Permission.CategoriesManage)]
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id) =>
         await categoryService.DeleteCategoryAsync(id);
+
+    [HttpGet("get-by-name")]
+    public async Task<TableResponse<List<CategoryDto>>> GetCategoryByName(SearchOptions options) =>
+        await categoryService.GetCategoryByNameAsync(options);
 }

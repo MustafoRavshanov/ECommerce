@@ -17,6 +17,7 @@ public class ProductController(IProductService productService): BaseController
     public async Task<ResponseModel<ProductFullDto>> CreateAsync(ProductCreateDto dto) =>
         await productService.CreateProductAsync(dto);
 
+    [AllowAnonymous]
     [HttpGet("get-all")]
     public async Task<TableResponse<List<ProductFullDto>>> GetAllAsync([FromQuery] TableOptions options) =>
         await productService.GetAllProductsAsync(options);
@@ -26,6 +27,7 @@ public class ProductController(IProductService productService): BaseController
     public async Task<TableResponse<List<ProductFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options) =>
         await productService.GetAllProductFullAsync(options);
 
+    [AllowAnonymous]
     [HttpGet("get-by-id/{id}")]
     public async Task<ResponseModel<ProductFullDto>> GetByIdAsync([FromRoute] int id) =>
         await productService.GetProductByIdAsync(id);
@@ -45,7 +47,7 @@ public class ProductController(IProductService productService): BaseController
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id) =>
         await productService.DeleteProductAsync(id);
 
-
+    [AllowAnonymous]
     [HttpGet("get-by-name")]
     public async Task<TableResponse<List<ProductFullDto>>> GetProductByName([FromQuery]SearchOptions options) =>
         await productService.GetProductByNameAsync(options);

@@ -17,6 +17,7 @@ public class CategoryController(ICategoryService categoryService) : BaseControll
     public async Task<ResponseModel<CategoryDto>> CreateAsync(CategoryCreateDto dto) =>
         await categoryService.AddCategoryAsync(dto);
 
+    [AllowAnonymous]
     [HttpGet("get-all")]
     public async Task<TableResponse<List<CategoryDto>>> GetAllAsync([FromQuery] TableOptions options) =>
         await categoryService.GetAllCategoriesAsync(options);
@@ -25,6 +26,7 @@ public class CategoryController(ICategoryService categoryService) : BaseControll
     public async Task<TableResponse<List<CategoryFullInformationDto>>> GetAllFullAsync([FromQuery] TableOptions options) =>
         await categoryService.GetAllCategoriesFullAsync(options);
 
+    [AllowAnonymous]
     [HttpGet("get-by-id/{id}")]
     public async Task<ResponseModel<CategoryDto>> GetByIdAsync([FromRoute] int id) =>
         await categoryService.GetCategoryByIdAsync(id);
@@ -43,6 +45,7 @@ public class CategoryController(ICategoryService categoryService) : BaseControll
     public async Task<ResponseModel<bool>> DeleteAsync([FromRoute] int id) =>
         await categoryService.DeleteCategoryAsync(id);
 
+    [AllowAnonymous]
     [HttpGet("get-by-name")]
     public async Task<TableResponse<List<CategoryDto>>> GetCategoryByName([FromQuery]SearchOptions options) =>
         await categoryService.GetCategoryByNameAsync(options);

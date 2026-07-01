@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+    minio1:
+        build:
+            context: .
+            dockerfile: ECommerce/ECommerce.API/Dockerfile
+        image: minio/minio
+        container_name: minio1
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment:
+            MINIO_ROOT_USER: admin
+            MINIO_ROOT_PASSWORD: admin12345
+        command: server /data
+        volumes:
+            - minio_data:/data
+        restart: unless-stopped
+    
+    postgres:
+        image: postgres:13
+        container_name: postgres
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: 1111
+            POSTGRES_DB: ecommerce_db
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
+volumes:
+    minio_data:
+    postgres_data:

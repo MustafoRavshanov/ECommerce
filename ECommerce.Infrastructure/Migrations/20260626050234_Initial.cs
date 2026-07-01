@@ -14,6 +14,7 @@ namespace ECommerce.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("CREATE DATABASE IF NOT EXISTS ecommerce_db;");
             migrationBuilder.CreateTable(
                 name: "category",
                 columns: table => new

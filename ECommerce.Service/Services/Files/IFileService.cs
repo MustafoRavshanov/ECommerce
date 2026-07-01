@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ECommerce.Domain.Helper;
 
 namespace ECommerce.Service.Services.MinIO;
 
 public interface IFileService
 {
-    Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType);        
+    Task<ResponseModel<string>> UploadFileAsync(Stream fileStream, string contentType, string fileSign);
+    Task<ResponseModel<string>> GetFileUrlByName(string fileSign);
+    Task<ResponseModel<List<string>>> FilterUrlsByName(string name);
 }

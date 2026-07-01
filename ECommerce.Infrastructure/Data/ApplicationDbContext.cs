@@ -22,6 +22,7 @@ public class ApplicationDbContext(IConfiguration configuration):DbContext
     public DbSet<Region> Regions { get; set; }
     public DbSet<District> Districts { get; set; }
     public DbSet<OtpCode> OtpCodes { get; set; }
+    public DbSet<FileData> FileDatas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

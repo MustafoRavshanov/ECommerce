@@ -9,7 +9,7 @@ public class ProductFullDto
     public decimal Price { get; set; }
     public string? CategoryNameUz { get; set; }
     public int StockQuantity { get; set; }
-    public string? ImageUrl { get; set; }
+    public int FileDataId { get; set; }
 }
 public class ProductFullInformationDto
 {
@@ -22,8 +22,8 @@ public class ProductFullInformationDto
     public string? DescriptionEn { get; set; }
     public int StockQuantity { get; set; }
     public int Weight { get; set; }
-    public string? ImageUrl { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int FileDataId { get; set; }
 }
 
 public class ProductCreateDto
@@ -36,7 +36,7 @@ public class ProductCreateDto
     public string? DescriptionEn { get; set; }
     public int? StockQuantity { get; set; }
     public int? Weight { get; set; }
-    public string? ImageUrl { get; set; }
+    public int? FileDataId { get; set; }
 }
 
 public class ProductUpdateDto
@@ -49,5 +49,5 @@ public class ProductUpdateDto
     public string? DescriptionEn { get; set; }
     public int? StockQuantity { get; set; }
     public int? Weight { get; set; }
-    public string? ImageUrl { get; set; }
+    public int? FileDataId { get; set; }
 }

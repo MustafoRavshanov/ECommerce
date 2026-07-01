@@ -68,12 +68,12 @@ public class MappingProfile:Profile
     .ForMember(dest => dest.DescriptionEn, opt => opt.Condition(src => src.DescriptionEn != null))
     .ForMember(dest => dest.StockQuantity, opt => opt.Condition(src => src.StockQuantity != null))
     .ForMember(dest => dest.Weight, opt => opt.Condition(src => src.Weight != null))
-    .ForMember(dest => dest.ImageUrl, opt => opt.Condition(src => src.ImageUrl != null));
+    .ForMember(dest => dest.FileDataId, opt => opt.Condition(src => src.FileDataId != null));
 
         CreateMap<Basket, BasketItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.NameUz))
             .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product.Price))
-            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.ImageUrl));
+            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.FileDataId));
         CreateMap<BasketCreateDto, Basket>().ReverseMap();
         CreateMap<BasketUpdateDto, Basket>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));

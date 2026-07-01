@@ -36,11 +36,11 @@ public class Product
     [Column("weight")]
     public int Weight { get; set; }
 
-    [Column("image_url")]
-    public string? ImageUrl { get; set; }
-
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("file_data_id")]
+    public int FileDataId { get; set; }
 
 
     // Navigation property

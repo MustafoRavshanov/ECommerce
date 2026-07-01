@@ -13,25 +13,25 @@ namespace ECommerce.API.Controllers
     public class FileController(IFileService fileService):BaseController
     {
         [HasPermission(Permission.ProductsCreate)]
-        [HttpPost("upload/{fileSign}")]
-        public async Task<ResponseModel<string>> UploadFile(IFormFile file, [FromRoute] string fileSign)
+        [HttpPost("upload")]
+        public async Task<ResponseModel<string>> UploadFile(IFormFile file)
         {
             if (file is null || file.Length == 0)
                 return ResponseModel<string>.Fail("No file uploaded", HttpStatusCode.NotFound);
 
             using var stream = file.OpenReadStream();
 
-            return await fileService.UploadFileAsync(stream, file.ContentType, fileSign);
+            return await fileService.UploadFileAsync(stream, file.ContentType);
         }
 
         [HasPermission(Permission.ProductsCreate)]
-        [HttpGet("get-by-name/{fileSign}")]
-        public async Task<ResponseModel<string>> GetFileUrlByName([FromRoute] string fileSign) => 
-            await fileService.GetFileUrlByName(fileSign);
+        [HttpGet("get-by-id/{id}")]
+        public async Task<ResponseModel<string>> GetFileUrlByIdAsync([FromRoute] int id) => 
+            await fileService.GetUrlByIdAsync(id);
 
         [HasPermission(Permission.ProductsCreate)]
-        [HttpGet("filter-by-name/{fileSign}")]
-        public async Task<ResponseModel<List<string>>> FilterUrlsByName([FromRoute] string fileSign) => 
-            await fileService.FilterUrlsByName(fileSign);
+        [HttpGet("get-all")]
+        public async Task<TableResponse<List<string>>> GetAllFileUrlAsync([FromQuery] TableOptions options) => 
+            await fileService.GetAllUrlAsync(options);
     }
 }

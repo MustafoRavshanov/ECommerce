@@ -18,15 +18,12 @@ public class FileData
 
     [Column("end_point")]
     public string? EndPoint { get; set; }
-    
-    [Column("file_name")]
-    public string? FileName { get; set; }
-
-    [Column("unique_file_name")]
-    public string? UniqueFileName { get; set; }
 
     [Column("file_length")]
     public long  FileLength { get; set; }
+
+    [Column("unique_file_name")]
+    public string? UniqueFileName { get; set; }
 
     [Column("content_type")]
     public string? ContentType { get; set; }

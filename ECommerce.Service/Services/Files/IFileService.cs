@@ -4,7 +4,7 @@ namespace ECommerce.Service.Services.MinIO;
 
 public interface IFileService
 {
-    Task<ResponseModel<string>> UploadFileAsync(Stream fileStream, string contentType, string fileSign);
-    Task<ResponseModel<string>> GetFileUrlByName(string fileSign);
-    Task<ResponseModel<List<string>>> FilterUrlsByName(string name);
+    Task<ResponseModel<string>> UploadFileAsync(Stream fileStream, string contentType);
+    Task<ResponseModel<string>> GetUrlByIdAsync(int id);
+    Task<TableResponse<List<string>>> GetAllUrlAsync(TableOptions options);
 }

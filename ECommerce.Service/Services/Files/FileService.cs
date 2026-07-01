@@ -27,15 +27,8 @@ public class FileService (ApplicationDbContext applicationDbContext): IFileServi
             .Build();
     }
 
-    public async Task<ResponseModel<string>> UploadFileAsync(Stream fileStream, string contentType, string fileSign)
+    public async Task<ResponseModel<string>> UploadFileAsync(Stream fileStream, string contentType)
     {
-        var existingFile = await applicationDbContext.FileDatas.FirstOrDefaultAsync(f => f.FileName == fileSign);
-
-        if (existingFile is not null)
-        { 
-            return ResponseModel<string>.Fail("File with the same name already exists");
-        }
-
         var bucketExists = await minioClient.BucketExistsAsync(
             new BucketExistsArgs().WithBucket(bucketName));
 
@@ -45,7 +38,7 @@ public class FileService (ApplicationDbContext applicationDbContext): IFileServi
                 new MakeBucketArgs().WithBucket(bucketName));
         }
 
-        var uniqueFileName = $"{Guid.NewGuid()}_{fileSign}";
+        var uniqueFileName = $"{Guid.NewGuid()}";
 
         await minioClient.PutObjectAsync(new PutObjectArgs()
             .WithBucket(bucketName)
@@ -57,11 +50,10 @@ public class FileService (ApplicationDbContext applicationDbContext): IFileServi
         var fileData = new FileData
         {
             EndPoint = endpoint,
-            FileName = fileSign,
-            UniqueFileName = uniqueFileName,
             FileLength = fileStream.Length,
             ContentType = contentType,
-            BasketName= bucketName
+            BasketName= bucketName,
+            UniqueFileName = uniqueFileName
         };
 
         await applicationDbContext.AddAsync(fileData);
@@ -73,29 +65,32 @@ public class FileService (ApplicationDbContext applicationDbContext): IFileServi
         return ResponseModel<string>.Success(uniqueFileName, "File uploaded successfully", HttpStatusCode.OK);
     }
 
-    public async Task<ResponseModel<string>> GetFileUrlByName(string fileSign)
+    public async Task<ResponseModel<string>> GetUrlByIdAsync(int id)
     { 
-        var fileData = await applicationDbContext.FileDatas.FirstOrDefaultAsync(f => f.FileName == fileSign);
+        var fileData = await applicationDbContext.FileDatas.FirstOrDefaultAsync(f => f.Id == id);
 
-        if (fileData is null)
+        if(fileData is null)
             return ResponseModel<string>.Fail("File not found", HttpStatusCode.NotFound);
 
-        var result = $"{fileData.EndPoint}/{fileData.BasketName}/{fileData.UniqueFileName}";
+        var result= $"https://{fileData.EndPoint}/{fileData.BasketName}/{fileData.UniqueFileName}";
 
         return ResponseModel<string>.Success(result, "File URL retrieved successfully", HttpStatusCode.OK);
     }
 
-    public async Task<ResponseModel<List<string>>> FilterUrlsByName(string name)
+    public async Task<TableResponse<List<string>>> GetAllUrlAsync(TableOptions options)
     {
-        var fileDatas = await applicationDbContext.FileDatas
-            .Where(f => f.FileName.StartsWith(name))
+        var fileDatas = applicationDbContext.FileDatas.AsQueryable();
+            
+
+        var count = await fileDatas.CountAsync();
+
+        var fileDatasList = await fileDatas
+            .Skip(options.First)
+            .Take(options.Rows)
             .ToListAsync();
 
-        if (fileDatas.Count == 0)
-            return ResponseModel<List<string>>.Fail("No files found with the given name", HttpStatusCode.NotFound);
+        var result = fileDatasList.Select(f => $"https://{f.EndPoint}/{f.BasketName}/{f.UniqueFileName}").ToList();
 
-        var urls = fileDatas.Select(f => $"{f.EndPoint}/{f.BasketName}/{f.UniqueFileName}").ToList();
-
-        return ResponseModel<List<string>>.Success(urls,"All Urls retrieved successfully", HttpStatusCode.OK);
+        return new TableResponse<List<string>>() {Total = count, Items = result };
     }
 }

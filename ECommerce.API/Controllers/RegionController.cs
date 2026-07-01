@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-[ApiController]
 [Route("api/region")]
 [Authorize]
-public class RegionController(IRegionService regionService) : ControllerBase
+public class RegionController(IRegionService regionService) : BaseController
 {
     [HttpPost("create")]
     [HasPermission(Permission.AddressesManage)]

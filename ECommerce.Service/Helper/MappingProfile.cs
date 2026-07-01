@@ -60,7 +60,15 @@ public class MappingProfile:Profile
              .ForMember(dest => dest.CategoryNameUz, opt => opt.MapFrom(src => src.Category.NameUz));
         CreateMap<ProductCreateDto, Product>().ReverseMap();
         CreateMap<ProductUpdateDto, Product>()
-            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+    .ForMember(dest => dest.NameUz, opt => opt.Condition(src => src.NameUz != null))
+    .ForMember(dest => dest.NameEn, opt => opt.Condition(src => src.NameEn != null))
+    .ForMember(dest => dest.Price, opt => opt.Condition(src => src.Price != null))
+    .ForMember(dest => dest.CategoryId, opt => opt.Condition(src => src.CategoryId != null))
+    .ForMember(dest => dest.DescriptionUz, opt => opt.Condition(src => src.DescriptionUz != null))
+    .ForMember(dest => dest.DescriptionEn, opt => opt.Condition(src => src.DescriptionEn != null))
+    .ForMember(dest => dest.StockQuantity, opt => opt.Condition(src => src.StockQuantity != null))
+    .ForMember(dest => dest.Weight, opt => opt.Condition(src => src.Weight != null))
+    .ForMember(dest => dest.ImageUrl, opt => opt.Condition(src => src.ImageUrl != null));
 
         CreateMap<Basket, BasketItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.NameUz))
@@ -86,9 +94,12 @@ public class MappingProfile:Profile
         CreateMap<RoleUpdateDto, Role>();
 
         CreateMap<RegisterDto, User>()
-    .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())  
-    .ForMember(dest => dest.RoleId, opt => opt.Ignore())    
-    .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())  
+            .ForMember(dest => dest.RoleId, opt => opt.Ignore())    
+            .ForMember(dest => dest.IsActive, opt => opt.Ignore());
 
+        CreateMap<OrderDetail, OrderDetailDto>()
+            .ForMember(dest => dest.ProductNameUz, opt => opt.MapFrom(src => src.Product!.NameUz))
+            .ForMember(dest => dest.ProductNameEn, opt => opt.MapFrom(src => src.Product!.NameEn));
     }
 }

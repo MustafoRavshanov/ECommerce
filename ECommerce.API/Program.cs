@@ -5,7 +5,10 @@ using ECommerce.Service.Services.Baskets;
 using ECommerce.Service.Services.Categories;
 using ECommerce.Service.Services.Customers;
 using ECommerce.Service.Services.Districts;
+using ECommerce.Service.Services.Files;
 using ECommerce.Service.Services.JWTs;
+using ECommerce.Service.Services.MinIO;
+using ECommerce.Service.Services.OrderDetails;
 using ECommerce.Service.Services.Orders;
 using ECommerce.Service.Services.Products;
 using ECommerce.Service.Services.Regions;
@@ -41,6 +44,8 @@ builder.Services.AddScoped<IDistrictService, DistrictService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>

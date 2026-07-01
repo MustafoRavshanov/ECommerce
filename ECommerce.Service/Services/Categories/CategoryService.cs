@@ -4,6 +4,7 @@ using ECommerce.Domain.Helper;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ECommerce.Service.Services.Categories
 {
@@ -11,6 +12,12 @@ namespace ECommerce.Service.Services.Categories
     {
         public async Task<ResponseModel<CategoryDto>> AddCategoryAsync(CategoryCreateDto createDto)
         {
+            var existCategory = await applicationDbContext.Categories
+                .FirstOrDefaultAsync(x => x.NameEn == createDto.NameEn || x.NameUz == createDto.NameUz);
+
+            if (existCategory != null)
+                return ResponseModel<CategoryDto>.Fail("This category name already exists", HttpStatusCode.Conflict);
+
             var entity = mapper.Map<Domain.Entities.Category>(createDto);
             await applicationDbContext.Categories.AddAsync(entity);
             var result = await applicationDbContext.SaveChangesAsync();
@@ -94,6 +101,7 @@ namespace ECommerce.Service.Services.Categories
 
             return ResponseModel<CategoryDto>.Success(categoryDto, "Category updated successfully", HttpStatusCode.OK);
         }
+
         public async Task<ResponseModel<bool>> DeleteCategoryAsync(int categoryId)
         {
             var entity = await applicationDbContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
@@ -110,5 +118,27 @@ namespace ECommerce.Service.Services.Categories
             return ResponseModel<bool>.Success(true, "Category deleted successfully", HttpStatusCode.OK);
         }
 
+        public async Task<TableResponse<List<CategoryDto>>> GetCategoryByNameAsync(SearchOptions searchOptions)
+        { 
+            var entities= applicationDbContext.Categories.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchOptions.SearchTerm))
+            {
+                entities = entities.Where(x =>
+                    x.NameUz.StartsWith(searchOptions.SearchTerm) ||
+                    x.NameEn.StartsWith(searchOptions.SearchTerm));
+            }
+
+            var count = await entities.CountAsync();
+
+            var categories = await entities
+                .Skip(searchOptions.First)
+                .Take(searchOptions.Rows)
+                .ToListAsync();
+
+            var categoriesDto = mapper.Map<List<CategoryDto>>(categories);
+
+            return new TableResponse<List<CategoryDto>>() { Total = count, Items = categoriesDto };
+        }
     }
 }

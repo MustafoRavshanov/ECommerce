@@ -150,6 +150,15 @@ namespace ECommerce.Service.Services.Orders
            if(entity.Status == OrderStatus.Delivered)
                 return ResponseModel<OrderDto>.Fail("Delivered orders cannot be updated", HttpStatusCode.BadRequest);
 
+            if (updateDto.Status == OrderStatus.Cancelled)
+            {
+                foreach (var item in entity.OrderDetails)
+                {
+                    if (item.Product is not null)
+                        item.Product.StockQuantity += item.Quantity;
+                }
+            }
+
             mapper.Map(updateDto, entity);
             var result = await applicationDbContext.SaveChangesAsync();
 
@@ -163,13 +172,22 @@ namespace ECommerce.Service.Services.Orders
 
         public async Task<ResponseModel<bool>> DeleteOrderAsync(int orderId, int customerId)
         {
-            var entity = await applicationDbContext.Orders.FirstOrDefaultAsync(x => x.Id == orderId && x.CustomerId == customerId);
+            var entity = await applicationDbContext.Orders
+                .Include(x=>x.OrderDetails)
+                .ThenInclude(x=>x.Product)
+                .FirstOrDefaultAsync(x => x.Id == orderId && x.CustomerId == customerId);
 
             if(entity is null)
                 return ResponseModel<bool>.Fail("Order not found", HttpStatusCode.NotFound);
 
             if(entity.Status != OrderStatus.Pending)
                 return ResponseModel<bool>.Fail("Only pending orders can be deleted", HttpStatusCode.BadRequest);
+
+            foreach (var item in entity.OrderDetails)
+            {
+                if (item.Product is not null)
+                    item.Product.Stock += item.Quantity;
+            }
 
             entity.Status = OrderStatus.Cancelled;
             entity.UpdatedAt = DateTime.UtcNow;

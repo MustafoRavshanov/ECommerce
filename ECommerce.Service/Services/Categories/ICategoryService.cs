@@ -12,4 +12,5 @@ public interface ICategoryService
     Task<ResponseModel<CategoryFullInformationDto>> GetCategoryFullByIdAsync(int categoryId);
     Task<ResponseModel<CategoryDto>> UpdateCategoryAsync(CategoryUpdateDto updateDto, int categoryId);
     Task<ResponseModel<bool>> DeleteCategoryAsync(int categoryId);
+    Task<TableResponse<List<CategoryDto>>> GetCategoryByNameAsync(SearchOptions searchOptions);
 }

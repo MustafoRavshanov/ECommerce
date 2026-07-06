@@ -33,6 +33,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -53,8 +54,8 @@ builder.Services.AddControllers()
         options.InvalidModelStateResponseFactory = context =>
         {
             var errors = context.ModelState
-                .Where(x => x.Value.Errors.Count > 0)
-                .Select(x => x.Value.Errors.First().ErrorMessage)
+                .Where(x => x.Value!.Errors.Count > 0)
+                .Select(x => x.Value!.Errors.First().ErrorMessage)
                 .ToList();
 
             var response = new

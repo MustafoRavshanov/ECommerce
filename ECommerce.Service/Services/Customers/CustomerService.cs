@@ -11,30 +11,30 @@ namespace ECommerce.Service.Services.Customers;
 
 public class CustomerService(ApplicationDbContext applicationDbContext, IMapper mapper) : ICustomerService
 {
-    public async Task<ResponseModel<CustomerDto>> AddCustomerAsync(CustomerCreateDto createDto)
-    {
-        var user = new User
-        {
-            PhoneNumber = createDto.PhoneNumber,
-            PasswordHash = BC.HashPassword(createDto.Password),
-            RoleId = createDto.RoleId,
-            IsActive = true
-        };
-        await applicationDbContext.Users.AddAsync(user);
-        await applicationDbContext.SaveChangesAsync();  
+    //public async Task<ResponseModel<CustomerDto>> AddCustomerAsync(CustomerCreateDto createDto)
+    //{
+    //    var user = new User
+    //    {
+    //        PhoneNumber = createDto.PhoneNumber,
+    //        PasswordHash = BC.HashPassword(createDto.Password),
+    //        RoleId = createDto.RoleId,
+    //        IsActive = true
+    //    };
+    //    await applicationDbContext.Users.AddAsync(user);
+    //    await applicationDbContext.SaveChangesAsync();  
 
-        var entity = mapper.Map<Customer>(createDto);
-        entity.Id = user.Id; 
+    //    var entity = mapper.Map<Customer>(createDto);
+    //    entity.Id = user.Id; 
 
-        await applicationDbContext.Customers.AddAsync(entity);
-        var result = await applicationDbContext.SaveChangesAsync();
+    //    await applicationDbContext.Customers.AddAsync(entity);
+    //    var result = await applicationDbContext.SaveChangesAsync();
 
-        if (result < 1)
-            return ResponseModel<CustomerDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+    //    if (result < 1)
+    //        return ResponseModel<CustomerDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        var resultDto = mapper.Map<CustomerDto>(entity);
-        return ResponseModel<CustomerDto>.Success(resultDto, "Customer created successfully", HttpStatusCode.Created);
-    }
+    //    var resultDto = mapper.Map<CustomerDto>(entity);
+    //    return ResponseModel<CustomerDto>.Success(resultDto, "Customer created successfully", HttpStatusCode.Created);
+    //}
 
     public async Task<TableResponse<List<CustomerDto>>> GetAllCustomersAsync(TableOptions options)
     {

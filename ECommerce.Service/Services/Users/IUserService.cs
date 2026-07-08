@@ -5,7 +5,7 @@ namespace ECommerce.Service.Services.Users;
 
 public interface IUserService
 {
-    Task<ResponseModel<UserDto>> CreateUserAsync(UserCreateDto userCreateDto);
+    //Task<ResponseModel<UserDto>> CreateUserAsync(UserCreateDto userCreateDto);
     Task<ResponseModel<UserDto>> GetUserByIdAsync(int userId);
     Task<ResponseModel<UserDto>> GetUserByPhoneNumberAsync(string phoneNumber);
     Task<TableResponse<List<UserFullDto>>> GetAllUsersFullAsync(TableOptions options);

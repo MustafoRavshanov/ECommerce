@@ -1,3 +1,4 @@
+using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Service.Helper;
 using ECommerce.Service.Services.Authorizations;
@@ -15,6 +16,7 @@ using ECommerce.Service.Services.Regions;
 using ECommerce.Service.Services.Role;
 using ECommerce.Service.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -31,7 +33,15 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),npgsqlOptions =>
+    npgsqlOptions.EnableRetryOnFailure(
+        maxRetryCount:5,
+        maxRetryDelay: TimeSpan.FromSeconds(10),
+        errorCodesToAdd:null)),
+        ServiceLifetime.Transient,
+        ServiceLifetime.Singleton);
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddMemoryCache();
 
@@ -47,6 +57,15 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IFileService, FileService>();
+
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+{
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireDigit = false;
+})
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>

@@ -1,14 +1,19 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Infrastructure.Data;
 
-public class ApplicationDbContext(IConfiguration configuration):DbContext
+public class ApplicationDbContext :IdentityDbContext<ApplicationUser, ApplicationRole, int>
 {
-    private readonly string? _connection = configuration.GetConnectionString("DefaultConnection");
+    private readonly IConfiguration configuration;
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration _configuration) : base(options)
+    {
+        this.configuration = _configuration;
+    }
 
     public DbSet<User>Users { get; set; }
     public DbSet<Role> Roles { get; set; }
@@ -26,6 +31,8 @@ public class ApplicationDbContext(IConfiguration configuration):DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
             .HasColumnType("decimal(18,2)");
@@ -95,7 +102,5 @@ public class ApplicationDbContext(IConfiguration configuration):DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-       optionsBuilder.UseNpgsql(_connection);
-    }
+    { }
 }

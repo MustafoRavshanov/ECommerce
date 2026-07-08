@@ -11,28 +11,28 @@ namespace ECommerce.Service.Services.Users;
 
 public class UserService(ApplicationDbContext applicationDbContext, IMapper mapper) : IUserService
 {
-    public async Task<ResponseModel<UserDto>> CreateUserAsync(UserCreateDto userCreateDto)
-    {
-        var existingUser = await applicationDbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == userCreateDto.PhoneNumber);
+    //public async Task<ResponseModel<UserDto>> CreateUserAsync(UserCreateDto userCreateDto)
+    //{
+    //    var existingUser = await applicationDbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == userCreateDto.PhoneNumber);
 
-        if (existingUser is not null) 
-            return ResponseModel<UserDto>.Fail("User with this phone number already exists.", HttpStatusCode.Conflict);
+    //    if (existingUser is not null) 
+    //        return ResponseModel<UserDto>.Fail("User with this phone number already exists.", HttpStatusCode.Conflict);
 
-        var entity = mapper.Map<User>(userCreateDto);
-        await applicationDbContext.Users.AddAsync(entity);
-        var result = await applicationDbContext.SaveChangesAsync();
+    //    var entity = mapper.Map<User>(userCreateDto);
+    //    await applicationDbContext.Users.AddAsync(entity);
+    //    var result = await applicationDbContext.SaveChangesAsync();
 
-        if ( result<1)
-            return ResponseModel<UserDto>.Fail("User creation failed.", HttpStatusCode.InternalServerError);
+    //    if ( result<1)
+    //        return ResponseModel<UserDto>.Fail("User creation failed.", HttpStatusCode.InternalServerError);
 
-        var createdUser = await applicationDbContext.Users
-            .Include(u => u.Role)
-            .FirstAsync(u => u.Id == entity.Id);
+    //    var createdUser = await applicationDbContext.Users
+    //        .Include(u => u.Role)
+    //        .FirstAsync(u => u.Id == entity.Id);
 
-        var userDto= mapper.Map<UserDto>(createdUser);
+    //    var userDto= mapper.Map<UserDto>(createdUser);
 
-        return ResponseModel<UserDto>.Success(userDto, "User created successfully", HttpStatusCode.Created);
-    }
+    //    return ResponseModel<UserDto>.Success(userDto, "User created successfully", HttpStatusCode.Created);
+    //}
 
     public async Task<TableResponse<List<UserFullDto>>> GetAllUsersFullAsync(TableOptions options)
     {

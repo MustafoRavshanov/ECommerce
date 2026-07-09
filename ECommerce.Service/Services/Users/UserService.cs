@@ -123,8 +123,11 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
         var result = await userManager.UpdateAsync(entity);
 
-        if(!result.Succeeded)
-            return ResponseModel<UserDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return ResponseModel<UserDto>.Fail($"Xatolik: {errors}", HttpStatusCode.InternalServerError);
+        }
 
         var dto= mapper.Map<UserDto>(entity);
 
@@ -147,7 +150,10 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
         var result=await userManager.ChangePasswordAsync(entity, dto.OldPassword!, dto.NewPassword!);
 
         if (!result.Succeeded)
-            return ResponseModel<bool>.Fail("error with saving to database", HttpStatusCode.InternalServerError);
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return ResponseModel<bool>.Fail($"Xatolik: {errors}", HttpStatusCode.InternalServerError);
+        }
 
         return ResponseModel<bool>.Success(true, "New Password saved successfully", HttpStatusCode.OK);
     }

@@ -62,7 +62,10 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
         var result = await roleManager.DeleteAsync(entity);
 
         if (!result.Succeeded)
-            return ResponseModel<bool>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return ResponseModel<bool>.Fail($"Xatolik: {errors}", HttpStatusCode.InternalServerError);
+        }
 
         return ResponseModel<bool>.Success(true, "Role removed successfully", HttpStatusCode.OK);
     }
@@ -115,7 +118,10 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
         var result = await roleManager.UpdateAsync(entity);
 
         if (!result.Succeeded)
-            return ResponseModel<RoleDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return ResponseModel<RoleDto>.Fail($"Xatolik: {errors}", HttpStatusCode.InternalServerError);
+        }
 
         var roleDto = mapper.Map<RoleDto>(entity);
 

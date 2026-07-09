@@ -1,5 +1,8 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using ECommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,19 +12,22 @@ using System.Text.Json;
 
 namespace ECommerce.Service.Services.JWTs;
 
-public class JwtService(IConfiguration configuration) : IJwtService
+public class JwtService(IConfiguration configuration, RoleManager<ApplicationRole> roleManager, ApplicationDbContext applicationDbContext) : IJwtService
 {
-    public string GenerateToken(User user)
+    public string GenerateToken(ApplicationUser user)
     {
-        var permissions = user.Role.RolePermissions
+        var role = roleManager.Roles.Include(x=>x.RolePermissions).FirstOrDefault(x => x.Id == user.RoleId);
+
+        var permissions = role.RolePermissions!
             .Select(rp => Enum.GetName(typeof(Permission), rp.Permission)!)
             .ToList();
+
 
         var claims = new List<Claim>
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-        new Claim(ClaimTypes.Role, user.Role.Name),
+        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber!),
+        new Claim(ClaimTypes.Role, role.Name!),
 
         new Claim("permissions", JsonSerializer.Serialize(permissions))
     };
@@ -29,7 +35,7 @@ public class JwtService(IConfiguration configuration) : IJwtService
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]!));
 
-        var token = new JwtSecurityToken(
+        var token = new JwtSecurityToken(   
             issuer: configuration["JwtSettings:Issuer"],
             audience: configuration["JwtSettings:Audience"],
             claims: claims,

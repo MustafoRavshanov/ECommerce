@@ -3,13 +3,14 @@ using ECommerce.Domain.DTOs;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Helper;
 using ECommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Service.Services.Users;
 
-public class UserService(ApplicationDbContext applicationDbContext, IMapper mapper) : IUserService
+public class UserService(ApplicationDbContext applicationDbContext, IMapper mapper, UserManager<ApplicationUser> userManager) : IUserService
 {
     //public async Task<ResponseModel<UserDto>> CreateUserAsync(UserCreateDto userCreateDto)
     //{
@@ -36,7 +37,7 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<TableResponse<List<UserFullDto>>> GetAllUsersFullAsync(TableOptions options)
     {
-        var entities = applicationDbContext.Users
+        var entities = userManager.Users
             .Include(u => u.Role)
             .ThenInclude(a => a.RolePermissions)
             .AsQueryable();
@@ -55,7 +56,7 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<UserFullDto>> GetUserFullByPhoneNumberAsync(string phoneNumber)
     { 
-        var entities = await applicationDbContext.Users
+        var entities = await userManager.Users
             .Include(u => u.Role)
             .ThenInclude(a=>a.RolePermissions)
             .FirstOrDefaultAsync(x=>x.PhoneNumber == phoneNumber);
@@ -70,7 +71,7 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<UserDto>> GetUserByIdAsync(int userId)
     {
-        var entities = await applicationDbContext.Users
+        var entities = await userManager.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(x => x.Id == userId);
 
@@ -84,7 +85,7 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<UserDto>> GetUserByPhoneNumberAsync(string phoneNumber)
     {
-        var entities = await applicationDbContext.Users
+        var entities = await userManager.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber);
 
@@ -98,7 +99,7 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<UserFullDto>> GetUserFullByIdAsync(int userId)
     {
-        var entities = await applicationDbContext.Users
+        var entities = await userManager.Users
           .Include(u => u.Role)
           .ThenInclude(a=>a.RolePermissions)
           .FirstOrDefaultAsync(x => x.Id == userId);
@@ -113,15 +114,16 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<UserDto>> UpdateUserAsync(int userId, UserUpdateDto userUpdateDto)
     {
-        var entity = await applicationDbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        var entity = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
         if (entity is null)
             return ResponseModel<UserDto>.Fail("User with this id not found", HttpStatusCode.NotFound);
 
         mapper.Map(userUpdateDto, entity);
-        var result = await applicationDbContext.SaveChangesAsync();
 
-        if(result<1)
+        var result = await userManager.UpdateAsync(entity);
+
+        if(!result.Succeeded)
             return ResponseModel<UserDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
         var dto= mapper.Map<UserDto>(entity);
@@ -129,24 +131,22 @@ public class UserService(ApplicationDbContext applicationDbContext, IMapper mapp
         return ResponseModel<UserDto>.Success(dto, "User updated successfully", HttpStatusCode.OK);
     }
 
-    public async Task<ResponseModel<bool>> UpdateUserPasswordAsync(int userId, UserUpdatePasswordDto userUpdatePasswordDto)
+    public async Task<ResponseModel<bool>> UpdateUserPasswordAsync(int userId, UserUpdatePasswordDto dto)
     {
-        var entity=await applicationDbContext.Users.FirstOrDefaultAsync(x=>x.Id==userId);
+        var entity=await userManager.Users.FirstOrDefaultAsync(x=>x.Id==userId);
 
         if (entity is null)
             return ResponseModel<bool>.Fail("User with this id not found", HttpStatusCode.NotFound);
 
-        if (!BC.Verify(userUpdatePasswordDto.OldPassword, entity.PasswordHash))
+        if (! await userManager.CheckPasswordAsync(entity, dto.OldPassword!))
             return ResponseModel<bool>.Fail("old parol is incorrect", HttpStatusCode.BadRequest);
 
-        if (userUpdatePasswordDto.NewPassword != userUpdatePasswordDto.ConfirmPassword)
+        if (dto.NewPassword != dto.ConfirmPassword)
             return ResponseModel<bool>.Fail("Enter same code with new parol", HttpStatusCode.BadRequest);
 
-        entity.PasswordHash=BC.HashPassword(userUpdatePasswordDto.NewPassword);
+        var result=await userManager.ChangePasswordAsync(entity, dto.OldPassword!, dto.NewPassword!);
 
-        var result= await applicationDbContext.SaveChangesAsync();
-
-        if (result < 1)
+        if (!result.Succeeded)
             return ResponseModel<bool>.Fail("error with saving to database", HttpStatusCode.InternalServerError);
 
         return ResponseModel<bool>.Success(true, "New Password saved successfully", HttpStatusCode.OK);

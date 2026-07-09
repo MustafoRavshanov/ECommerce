@@ -28,6 +28,7 @@ public class UserFullDto
 public class UserCreateDto
 {
     public string? PhoneNumber { get; set; }
+    public string? UserName { get; set; }
 
     [MinLength(7, ErrorMessage = "Parol kamida 7 ta belgi bo'lishi kerak")]
     [MaxLength(14, ErrorMessage = "Parol ko'pi bilan 14 ta belgi bo'lishi kerak")]

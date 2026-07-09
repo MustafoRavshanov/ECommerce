@@ -33,7 +33,7 @@ public class Customer
 
 
     // Navigation property
-    public User? User { get; set; }
+    public ApplicationUser? User { get; set; }
     public District? District { get; set; }
     public ICollection<Basket>? Baskets { get; set; }
     public ICollection<Order>? Orders { get; set; }

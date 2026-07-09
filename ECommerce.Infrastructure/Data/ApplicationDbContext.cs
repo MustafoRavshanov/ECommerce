@@ -1,9 +1,9 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Infrastructure.Data;
 
@@ -15,8 +15,8 @@ public class ApplicationDbContext :IdentityDbContext<ApplicationUser, Applicatio
         this.configuration = _configuration;
     }
 
-    public DbSet<User>Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
+    //public DbSet<User>Users { get; set; }
+    //public DbSet<Role> Roles { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -65,9 +65,9 @@ public class ApplicationDbContext :IdentityDbContext<ApplicationUser, Applicatio
         modelBuilder.Entity<RolePermission>()
             .HasKey(x => new { x.RoleId, x.Permission });
 
-        modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "SuperAdmin" },
-            new Role { Id = 2, Name = "Customer" });
+        modelBuilder.Entity<ApplicationRole>().HasData(
+            new ApplicationRole { Id = 1, Name = "SuperAdmin", NormalizedName="SUPERADMIN" },
+            new ApplicationRole { Id = 2, Name = "Customer", NormalizedName="CUSTOMER" });
 
         modelBuilder.Entity<RolePermission>().HasData(
             new RolePermission { RoleId = 1, Permission = Permission.UsersDelete },
@@ -87,16 +87,24 @@ public class ApplicationDbContext :IdentityDbContext<ApplicationUser, Applicatio
             new RolePermission { RoleId = 2, Permission = Permission.OrdersEdit }
             );
 
-        modelBuilder.Entity<User>().HasData(new User
+        var hasher = new PasswordHasher<ApplicationUser>();
+
+        modelBuilder.Entity<ApplicationUser>().HasData(new ApplicationUser
         {
             Id = 1,
+            UserName="mustafo",
             PhoneNumber = "500016252",
-            PasswordHash = BC.HashPassword("mustafo2006"),
+            PasswordHash = hasher.HashPassword(null, "mustafo@06"),
             FirstName = "Mustafo",
             LastName = "Ravshanov",
             IsActive = true,
             RoleId = 1,
-            CreatedAt= DateTime.UtcNow
+        });
+
+        modelBuilder.Entity<IdentityUserRole<int>>().HasData(new IdentityUserRole<int>
+        {
+            RoleId = 1,
+            UserId = 1
         });
         
     }

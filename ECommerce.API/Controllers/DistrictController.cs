@@ -1,4 +1,5 @@
-﻿using ECommerce.API.Filters;
+﻿using ECommerce.API.Extentions;
+using ECommerce.API.Filters;
 using ECommerce.Domain.DTOs;
 using ECommerce.Domain.Enums;
 using ECommerce.Domain.Helper;
@@ -10,7 +11,7 @@ namespace ECommerce.API.Controllers;
 
 [Route("api/district")]
 [Authorize]
-public class DistrictController(IDistrictService districtService) : BaseController
+public class DistrictController(IDistrictService districtService) :BaseController
 {
     [HttpPost("create")]
     [HasPermission(Permission.AddressesManage)]
@@ -18,12 +19,15 @@ public class DistrictController(IDistrictService districtService) : BaseControll
         await districtService.AddDistrictAsync(dto);
 
     [HttpGet("get-all")]
-    [HasPermission(Permission.AddressesManage)]
-    public async Task<TableResponse<List<DistrictDto>>> GetAllAsync([FromQuery] TableOptions options) =>
-        await districtService.GetAllDistrictsAsync(options);
+    [AllowAnonymous]
+    public async Task<TableResponse<List<DistrictDto>>> GetAllAsync([FromQuery] TableOptions options)
+    {
+        var user = CurrentUserId;
+        return await districtService.GetAllDistrictsAsync(options);
+    }
 
     [HttpGet("get-by-id/{id}")]
-    [HasPermission(Permission.AddressesManage)]
+    [AllowAnonymous]
     public async Task<ResponseModel<DistrictDto>> GetByIdAsync([FromRoute] int id) =>
         await districtService.GetDistrictByIdAsync(id);
 

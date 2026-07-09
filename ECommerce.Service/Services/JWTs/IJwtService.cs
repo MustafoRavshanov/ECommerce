@@ -4,5 +4,5 @@ namespace ECommerce.Service.Services.JWTs;
 
 public interface IJwtService
 {
-    string GenerateToken(User user);
+    string GenerateToken(ApplicationUser user);
 }

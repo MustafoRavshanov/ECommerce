@@ -4,13 +4,14 @@ using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
 using ECommerce.Domain.Helper;
 using ECommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using RoleEntity = ECommerce.Domain.Entities.Role;
+using RoleEntity = ECommerce.Domain.Entities.ApplicationRole;
 
 namespace ECommerce.Service.Services.Role;
 
-public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapper) : IRoleService
+public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapper, RoleManager<ApplicationRole> roleManager) : IRoleService
 {
     public async Task<ResponseModel<RoleDto>> AddRoleAsync(RoleCreateDto roleCreateDto)
     {
@@ -20,7 +21,7 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
             return ResponseModel<RoleDto>.Fail("Role with this name already exists", HttpStatusCode.Conflict);
 
 
-        var entity =  mapper.Map<RoleEntity>(roleCreateDto);
+        var entity = mapper.Map<RoleEntity>(roleCreateDto);
         await applicationDbContext.AddAsync(entity);
         await applicationDbContext.SaveChangesAsync();
 
@@ -38,17 +39,17 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
         if (result < 1)
             return ResponseModel<RoleDto>.Fail("Erro with saving to database", HttpStatusCode.InternalServerError);
 
-        var roleDto=mapper.Map<RoleDto>(entity);
+        var roleDto = mapper.Map<RoleDto>(entity);
 
-        return ResponseModel<RoleDto>.Success(roleDto, "Role created successfully",HttpStatusCode.Created);
+        return ResponseModel<RoleDto>.Success(roleDto, "Role created successfully", HttpStatusCode.Created);
     }
 
     public async Task<ResponseModel<bool>> DeleteRoleAsync(int roleId)
     {
-        var entity= await applicationDbContext.Roles
-            .Include(u=>u.Users)
-            .Include(a=>a.RolePermissions)
-            .FirstOrDefaultAsync(x=>x.Id == roleId);
+        var entity = await roleManager.Roles
+            .Include(u => u.Users)
+            .Include(a => a.RolePermissions)
+            .FirstOrDefaultAsync(x => x.Id == roleId);
 
         if (entity is null)
             return ResponseModel<bool>.Fail("this Role not found", HttpStatusCode.NotFound);
@@ -57,10 +58,10 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
             return ResponseModel<bool>.Fail("Can't remove roles which have users", HttpStatusCode.BadRequest);
 
         applicationDbContext.RolePermissions.RemoveRange(entity.RolePermissions);
-        applicationDbContext.Roles.Remove(entity);  
-        var result= await applicationDbContext.SaveChangesAsync();
 
-        if (result < 1)
+        var result = await roleManager.DeleteAsync(entity);
+
+        if (!result.Succeeded)
             return ResponseModel<bool>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
         return ResponseModel<bool>.Success(true, "Role removed successfully", HttpStatusCode.OK);
@@ -68,52 +69,52 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<TableResponse<List<RoleDto>>> GetAllRolesAsync(TableOptions options)
     {
-        var entities=applicationDbContext.Roles
-            .Include(u=>u.Users)
-            .Include(a=>a.RolePermissions)
+        var entities = roleManager.Roles
+            .Include(u => u.Users)
+            .Include(a => a.RolePermissions)
             .AsQueryable();
 
-        var count=await applicationDbContext.Roles.CountAsync();
+        var count = await entities.CountAsync();
 
-        var roles= await entities
+        var roles = await entities
             .Skip(options.First)
             .Take(options.Rows)
             .ToListAsync();
 
-        var resultDtos= mapper.Map<List<RoleDto>>(roles);
+        var resultDtos = mapper.Map<List<RoleDto>>(roles);
 
-        return new TableResponse<List<RoleDto>>() { Total=count, Items=resultDtos };
+        return new TableResponse<List<RoleDto>>() { Total = count, Items = resultDtos };
     }
 
     public async Task<ResponseModel<RoleDto>> GetRoleByIdAsync(int roleId)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
             .Include(u => u.Users)
             .Include(a => a.RolePermissions)
             .FirstOrDefaultAsync(x => x.Id == roleId);
 
-        if(entity is null)
+        if (entity is null)
             return ResponseModel<RoleDto>.Fail("Role not found", HttpStatusCode.NotFound);
 
-        var roleDto=mapper.Map<RoleDto>(entity);
+        var roleDto = mapper.Map<RoleDto>(entity);
 
-        return ResponseModel<RoleDto>.Success(roleDto, "Role retrieved successfully",HttpStatusCode.OK);
+        return ResponseModel<RoleDto>.Success(roleDto, "Role retrieved successfully", HttpStatusCode.OK);
     }
 
     public async Task<ResponseModel<RoleDto>> UpdateRoleAsync(int roleId, RoleUpdateDto roleUpdateDto)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
             .Include(u => u.Users)
             .Include(a => a.RolePermissions)
             .FirstOrDefaultAsync(x => x.Id == roleId);
 
-        if(entity is null)
+        if (entity is null)
             return ResponseModel<RoleDto>.Fail("Role not found", HttpStatusCode.NotFound);
 
         mapper.Map(roleUpdateDto, entity);
-        var result = await applicationDbContext.SaveChangesAsync();
+        var result = await roleManager.UpdateAsync(entity);
 
-        if (result < 1)
+        if (!result.Succeeded)
             return ResponseModel<RoleDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
         var roleDto = mapper.Map<RoleDto>(entity);
@@ -123,20 +124,20 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
 
     public async Task<ResponseModel<RoleDto>> GivePermissionAsync(int roleId, Permission permission)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
             .Include(a => a.RolePermissions)
             .FirstOrDefaultAsync(x => x.Id == roleId);
 
         if (entity is null)
             return ResponseModel<RoleDto>.Fail("Role not found", HttpStatusCode.NotFound);
 
-        if (entity.RolePermissions.Any(x => x.Permission == permission))
+        if (entity.RolePermissions!.Any(x => x.Permission == permission))
             return ResponseModel<RoleDto>.Fail("This permission already exists", HttpStatusCode.Conflict);
 
-        entity.RolePermissions.Add(new RolePermission
+        entity.RolePermissions!.Add(new RolePermission
         {
-            RoleId=roleId,
-            Permission=permission
+            RoleId = roleId,
+            Permission = permission
         });
 
         var result = await applicationDbContext.SaveChangesAsync();
@@ -144,72 +145,72 @@ public class RoleService(ApplicationDbContext applicationDbContext, IMapper mapp
         if (result < 1)
             return ResponseModel<RoleDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        var roleDto=mapper.Map<RoleDto>(entity);
+        var roleDto = mapper.Map<RoleDto>(entity);
 
         return ResponseModel<RoleDto>.Success(roleDto, "Permission saved successfully", HttpStatusCode.OK);
     }
 
     public async Task<ResponseModel<bool>> RevokeAllPermissionsAsync(int roleId)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
            .Include(a => a.RolePermissions)
            .FirstOrDefaultAsync(x => x.Id == roleId);
 
         if (entity is null)
             return ResponseModel<bool>.Fail("Role not found", HttpStatusCode.NotFound);
 
-        if(!entity.RolePermissions.Any())
+        if (!entity.RolePermissions!.Any())
             return ResponseModel<bool>.Fail("Permissions already empty", HttpStatusCode.BadRequest);
 
-        applicationDbContext.RolePermissions.RemoveRange(entity.RolePermissions);
+        applicationDbContext.RolePermissions.RemoveRange(entity.RolePermissions!);
 
         var result = await applicationDbContext.SaveChangesAsync();
 
         if (result < 1)
             return ResponseModel<bool>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        return ResponseModel<bool>.Success(true, "Permissions removed successfully",HttpStatusCode.OK);
+        return ResponseModel<bool>.Success(true, "Permissions removed successfully", HttpStatusCode.OK);
     }
 
     public async Task<ResponseModel<RoleDto>> RevokePermissionAsync(int roleId, Permission permission)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
            .Include(a => a.RolePermissions)
            .FirstOrDefaultAsync(x => x.Id == roleId);
 
         if (entity is null)
             return ResponseModel<RoleDto>.Fail("Role not found", HttpStatusCode.NotFound);
 
-        if (!entity.RolePermissions.Any())
+        if (!entity.RolePermissions!.Any())
             return ResponseModel<RoleDto>.Fail("Permissions already empty", HttpStatusCode.BadRequest);
 
-        var rolePermission=entity.RolePermissions.FirstOrDefault(x=>x.Permission==permission);
+        var rolePermission = entity.RolePermissions!.FirstOrDefault(x => x.Permission == permission);
 
-        if(rolePermission is null)
+        if (rolePermission is null)
             return ResponseModel<RoleDto>.Fail("This permission doesn't exists", HttpStatusCode.NotFound);
 
 
         applicationDbContext.RolePermissions.Remove(rolePermission);
         var result = await applicationDbContext.SaveChangesAsync();
 
-        if(result< 1)
+        if (result < 1)
             return ResponseModel<RoleDto>.Fail("Error with saving to database", HttpStatusCode.InternalServerError);
 
-        var roleDto=mapper.Map<RoleDto>(entity);
+        var roleDto = mapper.Map<RoleDto>(entity);
 
         return ResponseModel<RoleDto>.Success(roleDto, "This permission removed successfully");
     }
 
     public async Task<ResponseModel<RoleDto>> UpdatePermissionsAsync(int roleId, List<Permission> permissions)
     {
-        var entity = await applicationDbContext.Roles
+        var entity = await roleManager.Roles
           .Include(a => a.RolePermissions)
           .FirstOrDefaultAsync(x => x.Id == roleId);
 
         if (entity is null)
             return ResponseModel<RoleDto>.Fail("Role not found", HttpStatusCode.NotFound);
 
-        applicationDbContext.RolePermissions.RemoveRange(entity.RolePermissions);
+        applicationDbContext.RolePermissions.RemoveRange(entity.RolePermissions!);
 
         foreach (Permission permission in permissions)
         {

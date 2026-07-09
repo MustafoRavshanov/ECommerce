@@ -78,22 +78,22 @@ public class MappingProfile:Profile
         CreateMap<BasketUpdateDto, Basket>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-        CreateMap<User, UserDto>()
+        CreateMap<ApplicationUser, UserDto>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
-        CreateMap<User, UserFullDto>()
+        CreateMap<ApplicationUser, UserFullDto>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.Role.RolePermissions.Select(rp => rp.Permission).ToList()));
-        CreateMap<UserCreateDto, User>();
-        CreateMap<UserUpdateDto, User>()
+        CreateMap<UserCreateDto, ApplicationUser>();
+        CreateMap<UserUpdateDto, ApplicationUser>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-        CreateMap<UserUpdatePasswordDto, User>();
+        CreateMap<UserUpdatePasswordDto, ApplicationUser>();
 
-        CreateMap<Role, RoleDto>()
+        CreateMap<ApplicationRole, RoleDto>()
             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.RolePermissions.Select(rp => rp.Permission).ToList()));
-        CreateMap<RoleCreateDto, Role>();
-        CreateMap<RoleUpdateDto, Role>();
+        CreateMap<RoleCreateDto, ApplicationRole>();
+        CreateMap<RoleUpdateDto, ApplicationRole>();
 
-        CreateMap<RegisterDto, User>()
+        CreateMap<RegisterDto, ApplicationUser>()
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())  
             .ForMember(dest => dest.RoleId, opt => opt.Ignore())    
             .ForMember(dest => dest.IsActive, opt => opt.Ignore());

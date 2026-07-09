@@ -17,6 +17,7 @@ public class VerifyOtpDto
 public class RegisterDto
 {
     public string? PhoneNumber { get; set; }
+    public string? UserName { get; set; }
 
     [MinLength(7, ErrorMessage ="Password should be at least 7 characters")]
     [MaxLength(14, ErrorMessage ="Password should be at most 14 characters")]

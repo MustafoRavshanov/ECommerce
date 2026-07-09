@@ -26,4 +26,12 @@ public class AuthorizationController(IAuthService authService): ControllerBase
     [HttpPost("login")]
     public async Task<ResponseModel<AuthResponseDto>> LoginAsync([FromBody] LoginDto dto) =>
         await authService.LoginAsync(dto);
+
+    [HttpPut("block-user")]
+    public async Task<ResponseModel<string>> BlockUserAsync([FromQuery] string phoneNumber, [FromHeader] string apiKey, [FromHeader] DateTime date) =>
+        await authService.BlockUserAsync(phoneNumber, apiKey, date);
+
+    [HttpPut("unblock-user")]
+    public async Task<ResponseModel<string>> UnBlockUser([FromQuery] string phoneNumber, [FromHeader] string apiKey) =>
+        await authService.RemoveBlockFromUserAsync(phoneNumber, apiKey);
 }

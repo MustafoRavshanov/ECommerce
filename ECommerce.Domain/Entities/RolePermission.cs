@@ -12,5 +12,5 @@ public class RolePermission
     [Column("permission")]
     public Permission Permission { get; set; }
 
-    public Role? Role { get; set; }
+    public ApplicationRole? Role { get; set; }
 }

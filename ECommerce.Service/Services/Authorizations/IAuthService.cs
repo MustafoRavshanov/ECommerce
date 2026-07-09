@@ -9,4 +9,6 @@ public interface IAuthService
     Task<ResponseModel<bool>> VerifyOtpAsync(VerifyOtpDto dto);
     Task<ResponseModel<AuthResponseDto>> RegisterAsync(RegisterDto dto);
     Task<ResponseModel<AuthResponseDto>> LoginAsync(LoginDto dto);
+    Task<ResponseModel<string>> BlockUserAsync(string phoneNumber, string apiKey, DateTime? endDay);
+    Task<ResponseModel<string>> RemoveBlockFromUserAsync(string phoneNumber, string apiKey);
 }

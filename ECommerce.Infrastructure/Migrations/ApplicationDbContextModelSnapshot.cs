@@ -49,6 +49,20 @@ namespace ECommerce.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "SuperAdmin",
+                            NormalizedName = "SUPERADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
+                        });
                 });
 
             modelBuilder.Entity("ECommerce.Domain.Entities.ApplicationUser", b =>
@@ -66,15 +80,9 @@ namespace ECommerce.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-
-                    b.Property<string>("EmailAddress")
-                        .HasColumnType("text");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
@@ -136,6 +144,25 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3b93a7c8-1ba1-498f-a4a4-058f777cd928",
+                            EmailConfirmed = false,
+                            FirstName = "Mustafo",
+                            IsActive = true,
+                            LastName = "Ravshanov",
+                            LockoutEnabled = false,
+                            PasswordHash = "AQAAAAIAAYagAAAAEKfoA74bQYD7Pd13t58WRfdAePhzGl3SSNEuqaAh92+49IbqNoCxRnSixTZS2KcceQ==",
+                            PhoneNumber = "500016252",
+                            PhoneNumberConfirmed = false,
+                            RoleId = 1,
+                            TwoFactorEnabled = false,
+                            UserName = "mustafo"
+                        });
                 });
 
             modelBuilder.Entity("ECommerce.Domain.Entities.Basket", b =>
@@ -500,36 +527,6 @@ namespace ECommerce.Infrastructure.Migrations
                     b.ToTable("region");
                 });
 
-            modelBuilder.Entity("ECommerce.Domain.Entities.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("role");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "SuperAdmin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Customer"
-                        });
-                });
-
             modelBuilder.Entity("ECommerce.Domain.Entities.RolePermission", b =>
                 {
                     b.Property<int>("RoleId")
@@ -622,65 +619,6 @@ namespace ECommerce.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerce.Domain.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text")
-                        .HasColumnName("first_name");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Password_hash");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("phone_number");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2026, 7, 8, 13, 16, 30, 68, DateTimeKind.Utc).AddTicks(6336),
-                            FirstName = "Mustafo",
-                            IsActive = true,
-                            LastName = "Ravshanov",
-                            PasswordHash = "$2a$11$mOdf01YzBQyGNuVW72IzP.NWPcQ4FK/SQi2XD4DX58PJG0lbEDGmW",
-                            PhoneNumber = "500016252",
-                            RoleId = 1
-                        });
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -763,6 +701,13 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 1
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -786,8 +731,8 @@ namespace ECommerce.Infrastructure.Migrations
 
             modelBuilder.Entity("ECommerce.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("ECommerce.Domain.Entities.Role", "Role")
-                        .WithMany()
+                    b.HasOne("ECommerce.Domain.Entities.ApplicationRole", "Role")
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -820,7 +765,7 @@ namespace ECommerce.Infrastructure.Migrations
                         .WithMany("Customers")
                         .HasForeignKey("DistrictId");
 
-                    b.HasOne("ECommerce.Domain.Entities.User", "User")
+                    b.HasOne("ECommerce.Domain.Entities.ApplicationUser", "User")
                         .WithOne("Customer")
                         .HasForeignKey("ECommerce.Domain.Entities.Customer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -893,19 +838,8 @@ namespace ECommerce.Infrastructure.Migrations
 
             modelBuilder.Entity("ECommerce.Domain.Entities.RolePermission", b =>
                 {
-                    b.HasOne("ECommerce.Domain.Entities.Role", "Role")
+                    b.HasOne("ECommerce.Domain.Entities.ApplicationRole", "Role")
                         .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("ECommerce.Domain.Entities.User", b =>
-                {
-                    b.HasOne("ECommerce.Domain.Entities.Role", "Role")
-                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -964,6 +898,18 @@ namespace ECommerce.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ECommerce.Domain.Entities.ApplicationRole", b =>
+                {
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ECommerce.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("ECommerce.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -998,18 +944,6 @@ namespace ECommerce.Infrastructure.Migrations
             modelBuilder.Entity("ECommerce.Domain.Entities.Region", b =>
                 {
                     b.Navigation("Districts");
-                });
-
-            modelBuilder.Entity("ECommerce.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("RolePermissions");
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("ECommerce.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Customer");
                 });
 #pragma warning restore 612, 618
         }

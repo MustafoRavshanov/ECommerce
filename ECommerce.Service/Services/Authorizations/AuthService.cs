@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Net;
-using BC = BCrypt.Net.BCrypt;
 
 namespace ECommerce.Service.Services.Authorizations;
 
@@ -30,6 +29,12 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
 
         if (!user.IsActive)
             return ResponseModel<AuthResponseDto>.Fail("Your account isn't active", HttpStatusCode.Forbidden);
+
+        if (user.LockoutEnabled)
+        {
+            if (user.LockoutEnd > DateTime.Now)
+                return ResponseModel<AuthResponseDto>.Fail($"You are blocked. You need to wait for till {user.LockoutEnd?.ToString("dd-MM-yyyy")}", HttpStatusCode.Forbidden);
+        }
 
         var token = jwtService.GenerateToken(user);
 
@@ -182,7 +187,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
             user.LockoutEnabled = true;
         
         if (user.LockoutEnd > DateTime.Now)
-            return ResponseModel<string>.Fail($"User already blocked and have time: {(user.LockoutEnd - DateTimeOffset.UtcNow).ToString()} to opened");
+            return ResponseModel<string>.Fail($"This user already blocked and you need to wait for till {user.LockoutEnd?.ToString("dd-MM-yyyy")} to opened");
 
         if (endDay <DateTime.Now)
             user.LockoutEnd = DateTime.MaxValue;
@@ -197,7 +202,7 @@ public class AuthService(ApplicationDbContext applicationDbContext, IJwtService 
             return ResponseModel<string>.Fail($"Xatolik: {errors}", HttpStatusCode.InternalServerError);
         }
 
-        return ResponseModel<string>.Success("Success", $"User blocked successfully. User will open {user.LockoutEnd} from block", HttpStatusCode.OK);
+        return ResponseModel<string>.Success("Success", $"User blocked successfully. User will open at {user.LockoutEnd?.ToString("dd-MM-yyyy")} from block", HttpStatusCode.OK);
     }
 
     public async Task<ResponseModel<string>> RemoveBlockFromUserAsync(string phoneNumber, string apiKey)
